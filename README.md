@@ -39,6 +39,7 @@ Evan Speak 是一个地图式数字花园首页原型，用于承载个人主页
 
 - [地图式数字花园设计简报](docs/digital-garden-brief.md)
 - [网站图像资源工作方法](docs/asset-workflow.md)
+- [部署与构建策略](docs/deployment-strategy.md)
 - [资源清单](assets/README.md)
 
 ## 维护原则
