@@ -12,13 +12,21 @@ For the full creation and maintenance workflow, see [`../docs/asset-workflow.md`
 
 ## Island Assets
 
-Final transparent PNGs used by the site:
+Compressed WebP files used by the site:
 
-- `islands/product.png`
-- `islands/ai.png`
-- `islands/business.png`
-- `islands/system.png`
-- `islands/observe.png`
+- `islands/product.webp`
+- `islands/ai.webp`
+- `islands/business.webp`
+- `islands/system.webp`
+- `islands/observe.webp`
+
+Uncompressed transparent PNGs are archived here:
+
+- `uncompressed/islands/product.png`
+- `uncompressed/islands/ai.png`
+- `uncompressed/islands/business.png`
+- `uncompressed/islands/system.png`
+- `uncompressed/islands/observe.png`
 
 Raw chroma-key generations are kept for reprocessing:
 
@@ -46,7 +54,8 @@ The original VI reference boards are copied into `brand/references/`, and the Im
 
 - Generation mode: built-in Image Gen.
 - Island post-processing: local chroma-key removal from a flat `#ff00ff` background.
-- Output format: PNG with alpha for island assets.
+- Source format: PNG with alpha for island assets.
+- Delivery format: resized WebP for browser loading.
 - Visual direction: restrained watercolor atlas, warm paper, muted sage/blue/clay/sand tones, no labels or watermark.
 
 ## Maintenance Rules
@@ -54,4 +63,5 @@ The original VI reference boards are copied into `brand/references/`, and the Im
 - Do not use a full-page UI screenshot as a website background.
 - Keep text out of image assets; render text in HTML.
 - Keep raw chroma-key files under `islands/raw/`.
-- Reference only project-local final assets from HTML/CSS.
+- Keep uncompressed final PNGs under `uncompressed/`.
+- Reference only project-local compressed assets from HTML/CSS.

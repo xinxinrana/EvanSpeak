@@ -26,7 +26,7 @@ body {
   color: var(--ink);
   font-family: Inter, "Noto Serif SC", "Microsoft YaHei", sans-serif;
   background:
-    url("assets/textures/paper-warm.png") center / 580px 580px repeat,
+    url("assets/textures/paper-warm.webp") center / 580px 580px repeat,
     radial-gradient(circle at 22% 20%, rgba(255, 255, 255, 0.55), transparent 34%),
     radial-gradient(circle at 80% 76%, rgba(188, 164, 128, 0.13), transparent 32%),
     linear-gradient(135deg, #f8f3ea 0%, #f0e9de 100%);
@@ -62,7 +62,7 @@ button {
   margin: 0 auto;
   background:
     linear-gradient(rgba(248, 244, 236, 0.72), rgba(248, 244, 236, 0.72)),
-    url("assets/textures/paper-warm.png") center / 640px 640px repeat;
+    url("assets/textures/paper-warm.webp") center / 640px 640px repeat;
 }
 
 .map-pane {

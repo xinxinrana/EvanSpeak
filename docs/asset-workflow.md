@@ -59,7 +59,13 @@ VI/
 位置：
 
 ```text
-assets/textures/paper-warm.png
+assets/textures/paper-warm.webp
+```
+
+未压缩源文件：
+
+```text
+assets/uncompressed/textures/paper-warm.png
 ```
 
 用途：
@@ -77,14 +83,24 @@ assets/textures/paper-warm.png
 
 ### 岛屿资源
 
-最终资源：
+网页加载资源：
 
 ```text
-assets/islands/product.png
-assets/islands/ai.png
-assets/islands/business.png
-assets/islands/system.png
-assets/islands/observe.png
+assets/islands/product.webp
+assets/islands/ai.webp
+assets/islands/business.webp
+assets/islands/system.webp
+assets/islands/observe.webp
+```
+
+未压缩透明 PNG 归档：
+
+```text
+assets/uncompressed/islands/product.png
+assets/uncompressed/islands/ai.png
+assets/uncompressed/islands/business.png
+assets/uncompressed/islands/system.png
+assets/uncompressed/islands/observe.png
 ```
 
 原始资源：
@@ -240,12 +256,12 @@ python -c "from PIL import Image; files=['assets/brand/evan-logo-transparent.png
 #ff00ff
 ```
 
-然后运行本地色键移除脚本：
+然后运行本地色键移除脚本，先输出未压缩透明 PNG：
 
 ```powershell
 python "C:\Users\ASUS\.codex\skills\.system\imagegen\scripts\remove_chroma_key.py" `
   --input "assets\islands\raw\ai-raw.png" `
-  --out "assets\islands\ai.png" `
+  --out "assets\uncompressed\islands\ai.png" `
   --auto-key border `
   --soft-matte `
   --transparent-threshold 12 `
@@ -253,7 +269,20 @@ python "C:\Users\ASUS\.codex\skills\.system\imagegen\scripts\remove_chroma_key.p
   --despill
 ```
 
-每个岛屿都按同样方式处理。
+每个岛屿都按同样方式处理，再从未压缩 PNG 生成网页加载用 WebP：
+
+```powershell
+@'
+from pathlib import Path
+from PIL import Image
+
+for src in sorted(Path("assets/uncompressed/islands").glob("*.png")):
+    with Image.open(src) as img:
+        img = img.convert("RGBA")
+        img.thumbnail((720, 720), Image.Resampling.LANCZOS)
+        img.save(Path("assets/islands") / f"{src.stem}.webp", "WEBP", quality=82, method=6)
+'@ | python -
+```
 
 处理后应检查：
 
@@ -269,10 +298,16 @@ python "C:\Users\ASUS\.codex\skills\.system\imagegen\scripts\remove_chroma_key.p
 from pathlib import Path
 from PIL import Image
 
-for path in sorted(Path("assets/islands").glob("*.png")):
+for path in sorted(Path("assets/uncompressed/islands").glob("*.png")):
     img = Image.open(path)
     print(f"{path}: {img.size}, mode={img.mode}, alpha={'A' in img.mode}")
 '@ | python -
+```
+
+检查网页加载资源大小：
+
+```powershell
+Get-ChildItem -LiteralPath "assets\islands" -Filter *.webp | Select-Object Name,Length
 ```
 
 ## 项目内整理规则
@@ -286,9 +321,10 @@ for path in sorted(Path("assets/islands").glob("*.png")):
 3. 复制到项目目录。
 4. Logo 白底源文件放入 `assets/brand/raw/`。
 5. 岛屿原始色键图放入 `assets/islands/raw/`。
-6. 抠图后的最终资源放入对应资源目录，例如 `assets/brand/` 或 `assets/islands/`。
-7. 页面只引用最终资源。
-8. 更新 `assets/README.md` 和对应子目录 README。
+6. 岛屿抠图后的未压缩 PNG 放入 `assets/uncompressed/islands/`。
+7. 岛屿网页加载版 WebP 放入 `assets/islands/`。
+8. 页面只引用压缩后的网页加载资源。
+9. 更新 `assets/README.md` 和对应子目录 README。
 
 ## 页面引用方式
 
@@ -302,7 +338,7 @@ for path in sorted(Path("assets/islands").glob("*.png")):
 首页中岛屿图片使用：
 
 ```html
-<img class="island-img" src="assets/islands/ai.png" alt="" aria-hidden="true" />
+<img class="island-img" src="assets/islands/ai.webp" alt="" aria-hidden="true" />
 ```
 
 文字必须单独写在 HTML 中：
@@ -331,7 +367,8 @@ for path in sorted(Path("assets/islands").glob("*.png")):
 - Logo：基于 `VI/` 视觉参考图使用内置 Image Gen 生成白底主图，复制到 `assets/brand/raw/evan-logo-white-bg.png`。
 - Logo 透明 PNG 和 ICO：使用 `scripts/build_brand_assets.py` 本地处理后保存到 `assets/brand/`。
 - Logo 页面引用：首页已引用 `assets/brand/icons/favicon.ico` 和 `assets/brand/apple-touch-icon.png`。
-- 纸张纹理：内置 Image Gen 生成，复制到 `assets/textures/paper-warm.png`。
+- 纸张纹理：内置 Image Gen 生成，未压缩源文件归档到 `assets/uncompressed/textures/paper-warm.png`，网页加载版保存到 `assets/textures/paper-warm.webp`。
 - 五个岛屿：内置 Image Gen 生成 `#ff00ff` 色键图，保存到 `assets/islands/raw/`。
-- 透明 PNG：使用 `remove_chroma_key.py` 本地处理后保存到 `assets/islands/`。
-- 首页引用：真实 HTML 叠加透明 PNG，文字与链接保持可编辑。
+- 透明 PNG：使用 `remove_chroma_key.py` 本地处理后保存到 `assets/uncompressed/islands/`。
+- 网页加载版：从未压缩 PNG 缩放并压缩为 WebP，保存到 `assets/islands/`。
+- 首页引用：真实 HTML 叠加透明 WebP，文字与链接保持可编辑。
