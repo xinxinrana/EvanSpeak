@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Evan Spack | 地图式数字花园</title>
+    <title>Evan Speak | 地图式数字花园</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,16 +13,16 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="garden" aria-label="Evan Spack 地图式数字花园首页">
+    <main class="garden" aria-label="Evan Speak 地图式数字花园首页">
       <section class="map-pane" aria-label="主题地图">
         <header class="header">
-          <a class="brand" href="#">
-            <span class="brand-name">Evan Spack</span>
+          <a class="brand" href="./">
+            <span class="brand-name">Evan Speak</span>
             <span class="brand-line">把长期问题整理成一张会生长的地图</span>
           </a>
 
           <nav class="nav" aria-label="主导航">
-            <a href="#" class="nav-link">
+            <a href="notes/" class="nav-link">
               <span class="nav-icon" aria-hidden="true"></span>
               所有笔记
             </a>
@@ -77,7 +77,7 @@
           </button>
         </div>
 
-        <a class="continue" href="#">
+        <a class="continue" href="explore/">
           <span class="compass" aria-hidden="true"></span>
           <span>继续探索</span>
           <span class="continue-line" aria-hidden="true"></span>
@@ -97,12 +97,12 @@
           </p>
 
           <div class="link-list">
-            <a href="#">
+            <a id="noteLink" href="topics/ai/notes/">
               <span class="paper-icon" aria-hidden="true"></span>
               <span>查看相关笔记</span>
               <span class="arrow" aria-hidden="true">→</span>
             </a>
-            <a href="#">
+            <a id="pathLink" href="topics/ai/paths/">
               <span class="chain-icon" aria-hidden="true"></span>
               <span>查看相关路径</span>
               <span class="arrow" aria-hidden="true">→</span>
@@ -127,30 +127,40 @@
           summary:
             "观察产品如何回应真实需求，也记录哪些问题值得长期投入、哪些体验会形成复利。",
           status: "修订中",
+          notesHref: "topics/product/notes/",
+          pathsHref: "topics/product/paths/",
         },
         ai: {
           title: "AI",
           summary:
             "探索人工智能的本质、能力边界与演化路径，以及它如何影响我们的工作、学习与协作方式。保持开放与审慎，寻找可验证的认知与实践。",
           status: "萌芽",
+          notesHref: "topics/ai/notes/",
+          pathsHref: "topics/ai/paths/",
         },
         business: {
           title: "商业",
           summary:
             "记录商业模式、交易结构与长期价值的判断，理解什么样的系统能够稳定创造增量。",
           status: "萌芽",
+          notesHref: "topics/business/notes/",
+          pathsHref: "topics/business/paths/",
         },
         system: {
           title: "自我系统",
           summary:
             "整理注意力、产出、复盘和生活秩序，让个人系统能支撑长期问题，而不是被短期状态牵着走。",
           status: "成型",
+          notesHref: "topics/system/notes/",
+          pathsHref: "topics/system/paths/",
         },
         observe: {
           title: "观察",
           summary:
             "保留世界变化中的细微信号，把尚未成文的线索放在地图上，等待它们慢慢连接。",
           status: "萌芽",
+          notesHref: "topics/observe/notes/",
+          pathsHref: "topics/observe/paths/",
         },
       };
 
@@ -159,6 +169,8 @@
       const summary = document.querySelector("#topicSummary");
       const status = document.querySelector("#topicStatus");
       const dot = document.querySelector("#topicDot");
+      const noteLink = document.querySelector("#noteLink");
+      const pathLink = document.querySelector("#pathLink");
 
       islands.forEach((island) => {
         island.addEventListener("click", () => {
@@ -172,6 +184,8 @@
           summary.textContent = topic.summary;
           status.innerHTML = `<span class="sprout" aria-hidden="true"></span>${topic.status}`;
           dot.className = `detail-dot ${topicKey}`;
+          noteLink.href = topic.notesHref;
+          pathLink.href = topic.pathsHref;
         });
       });
     </script>
