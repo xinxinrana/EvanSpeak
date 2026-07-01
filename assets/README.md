@@ -2,6 +2,8 @@
 
 These assets support the map-style digital garden homepage.
 
+For the full creation and maintenance workflow, see [`../docs/asset-workflow.md`](../docs/asset-workflow.md).
+
 ## Textures
 
 - `textures/paper-warm.png`
@@ -28,9 +30,28 @@ Raw chroma-key generations are kept for reprocessing:
 
 The island images intentionally contain no UI text. Theme names and questions are rendered in HTML so the site remains editable and maintainable.
 
+## Brand Assets
+
+Ready-to-use Evan logo exports are in `brand/`:
+
+- `brand/evan-logo-transparent.png`
+- `brand/evan-logo-white.png`
+- `brand/icons/favicon.ico`
+- `brand/icons/evan-logo.ico`
+- `brand/png/evan-logo-*.png`
+
+The original VI reference boards are copied into `brand/references/`, and the Image Gen white-background source is kept in `brand/raw/`.
+
 ## Generation Notes
 
 - Generation mode: built-in Image Gen.
 - Island post-processing: local chroma-key removal from a flat `#ff00ff` background.
 - Output format: PNG with alpha for island assets.
 - Visual direction: restrained watercolor atlas, warm paper, muted sage/blue/clay/sand tones, no labels or watermark.
+
+## Maintenance Rules
+
+- Do not use a full-page UI screenshot as a website background.
+- Keep text out of image assets; render text in HTML.
+- Keep raw chroma-key files under `islands/raw/`.
+- Reference only project-local final assets from HTML/CSS.
