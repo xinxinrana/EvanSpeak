@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Evan Spack | 地图式数字花园</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="garden" aria-label="Evan Spack 地图式数字花园首页">
+      <section class="map-pane" aria-label="主题地图">
+        <header class="header">
+          <a class="brand" href="#">
+            <span class="brand-name">Evan Spack</span>
+            <span class="brand-line">把长期问题整理成一张会生长的地图</span>
+          </a>
+
+          <nav class="nav" aria-label="主导航">
+            <a href="#" class="nav-link">
+              <span class="nav-icon" aria-hidden="true"></span>
+              所有笔记
+            </a>
+          </nav>
+        </header>
+
+        <div class="map" aria-label="思考地图">
+          <div class="sea-mark sea-mark-a" aria-hidden="true">∿∿∿</div>
+          <div class="sea-mark sea-mark-b" aria-hidden="true">∿∿∿</div>
+          <div class="sea-mark sea-mark-c" aria-hidden="true">∿∿∿</div>
+
+          <svg class="route-layer" viewBox="0 0 920 690" aria-hidden="true">
+            <path class="route route-blue" d="M312 196 C392 190 435 174 500 180" />
+            <path class="route route-blue" d="M672 295 C700 360 718 386 760 420" />
+            <path class="route route-brown" d="M258 490 C328 502 362 508 428 500" />
+            <circle class="joint" cx="312" cy="196" r="4" />
+            <circle class="joint" cx="500" cy="180" r="4" />
+            <circle class="joint" cx="672" cy="295" r="4" />
+            <circle class="joint" cx="760" cy="420" r="4" />
+            <circle class="joint warm" cx="258" cy="490" r="4" />
+            <circle class="joint warm" cx="428" cy="500" r="4" />
+          </svg>
+
+          <button class="island product" type="button" data-topic="product">
+            <img class="island-img" src="assets/islands/product.png" alt="" aria-hidden="true" />
+            <span class="island-title">产品</span>
+            <span class="island-question">什么产品值得<br />长期投入？</span>
+          </button>
+
+          <button class="island ai active" type="button" data-topic="ai">
+            <img class="island-img" src="assets/islands/ai.png" alt="" aria-hidden="true" />
+            <span class="island-title">AI</span>
+            <span class="island-question">智能的本质是什么，<br />与人类智能如何不同？</span>
+          </button>
+
+          <button class="island business" type="button" data-topic="business">
+            <img class="island-img" src="assets/islands/business.png" alt="" aria-hidden="true" />
+            <span class="island-title">商业</span>
+            <span class="island-question">什么样的商业模式<br />能创造长期价值？</span>
+          </button>
+
+          <button class="island system" type="button" data-topic="system">
+            <img class="island-img" src="assets/islands/system.png" alt="" aria-hidden="true" />
+            <span class="island-title">自我系统</span>
+            <span class="island-question">如何设计我的<br />生活与工作系统？</span>
+          </button>
+
+          <button class="island observe" type="button" data-topic="observe">
+            <img class="island-img" src="assets/islands/observe.png" alt="" aria-hidden="true" />
+            <span class="island-title">观察</span>
+            <span class="island-question">世界正在发生<br />哪些重要变化？</span>
+          </button>
+        </div>
+
+        <a class="continue" href="#">
+          <span class="compass" aria-hidden="true"></span>
+          <span>继续探索</span>
+          <span class="continue-line" aria-hidden="true"></span>
+        </a>
+      </section>
+
+      <aside class="detail" aria-label="当前主题详情">
+        <button class="close" type="button" aria-label="关闭详情">×</button>
+        <div class="detail-inner">
+          <div class="detail-title-row">
+            <span id="topicDot" class="detail-dot"></span>
+            <h1 id="topicTitle">AI</h1>
+          </div>
+
+          <p id="topicSummary">
+            探索人工智能的本质、能力边界与演化路径，以及它如何影响我们的工作、学习与协作方式。保持开放与审慎，寻找可验证的认知与实践。
+          </p>
+
+          <div class="link-list">
+            <a href="#">
+              <span class="paper-icon" aria-hidden="true"></span>
+              <span>查看相关笔记</span>
+              <span class="arrow" aria-hidden="true">→</span>
+            </a>
+            <a href="#">
+              <span class="chain-icon" aria-hidden="true"></span>
+              <span>查看相关路径</span>
+              <span class="arrow" aria-hidden="true">→</span>
+            </a>
+          </div>
+
+          <div class="status">
+            <span>内容状态</span>
+            <strong id="topicStatus">
+              <span class="sprout" aria-hidden="true"></span>
+              萌芽
+            </strong>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <script>
+      const topics = {
+        product: {
+          title: "产品",
+          summary:
+            "观察产品如何回应真实需求，也记录哪些问题值得长期投入、哪些体验会形成复利。",
+          status: "修订中",
+        },
+        ai: {
+          title: "AI",
+          summary:
+            "探索人工智能的本质、能力边界与演化路径，以及它如何影响我们的工作、学习与协作方式。保持开放与审慎，寻找可验证的认知与实践。",
+          status: "萌芽",
+        },
+        business: {
+          title: "商业",
+          summary:
+            "记录商业模式、交易结构与长期价值的判断，理解什么样的系统能够稳定创造增量。",
+          status: "萌芽",
+        },
+        system: {
+          title: "自我系统",
+          summary:
+            "整理注意力、产出、复盘和生活秩序，让个人系统能支撑长期问题，而不是被短期状态牵着走。",
+          status: "成型",
+        },
+        observe: {
+          title: "观察",
+          summary:
+            "保留世界变化中的细微信号，把尚未成文的线索放在地图上，等待它们慢慢连接。",
+          status: "萌芽",
+        },
+      };
+
+      const islands = document.querySelectorAll(".island");
+      const title = document.querySelector("#topicTitle");
+      const summary = document.querySelector("#topicSummary");
+      const status = document.querySelector("#topicStatus");
+      const dot = document.querySelector("#topicDot");
+
+      islands.forEach((island) => {
+        island.addEventListener("click", () => {
+          const topicKey = island.dataset.topic;
+          const topic = topics[topicKey];
+
+          islands.forEach((item) => item.classList.remove("active"));
+          island.classList.add("active");
+
+          title.textContent = topic.title;
+          summary.textContent = topic.summary;
+          status.innerHTML = `<span class="sprout" aria-hidden="true"></span>${topic.status}`;
+          dot.className = `detail-dot ${topicKey}`;
+        });
+      });
+    </script>
+  </body>
+</html>
