@@ -98,8 +98,13 @@
           </p>
 
           <section class="panel-notes" aria-label="该主题下的笔记">
-            <div class="panel-notes-label">相关笔记</div>
-            <div id="noteList"></div>
+            <div class="panel-notes-head">
+              <span class="panel-notes-label">相关笔记</span>
+              <span class="panel-notes-count" id="noteCount"></span>
+            </div>
+            <div class="panel-notes-box" id="notesBox">
+              <div class="note-scroll" id="noteList"></div>
+            </div>
           </section>
 
           <div class="sub-links">
@@ -198,12 +203,26 @@
       const status = document.querySelector("#topicStatus");
       const dot = document.querySelector("#topicDot");
       const noteList = document.querySelector("#noteList");
+      const notesBox = document.querySelector("#notesBox");
+      const noteCount = document.querySelector("#noteCount");
       const allNotesLink = document.querySelector("#allNotesLink");
       const pathLink = document.querySelector("#pathLink");
 
+      function updateScrollHint() {
+        const canUp = noteList.scrollTop > 4;
+        const canDown = noteList.scrollTop + noteList.clientHeight < noteList.scrollHeight - 4;
+        notesBox.classList.toggle("can-up", canUp);
+        notesBox.classList.toggle("can-down", canDown);
+      }
+
       function renderNotes(notes) {
+        noteCount.textContent = notes.length ? `${notes.length} 篇` : "";
+
         if (!notes.length) {
-          noteList.innerHTML = '<div class="panel-empty">这个主题还没有整理完成的笔记。</div>';
+          noteList.innerHTML =
+            '<div class="panel-empty">这个主题还没有整理完成的笔记。</div>';
+          noteList.scrollTop = 0;
+          updateScrollHint();
           return;
         }
 
@@ -219,6 +238,9 @@
             </a>`;
           })
           .join("");
+
+        noteList.scrollTop = 0;
+        updateScrollHint();
       }
 
       function showTopic(topicKey) {
@@ -240,6 +262,13 @@
       islands.forEach((island) => {
         island.addEventListener("click", () => showTopic(island.dataset.topic));
       });
+
+      window.addEventListener("resize", updateScrollHint);
+      noteList.addEventListener("scroll", updateScrollHint);
+
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(updateScrollHint);
+      }
 
       showTopic("ai");
     </script>
