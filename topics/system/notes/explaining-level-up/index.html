@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>如何在 1 分钟内讲清“升维” | Evan Speak</title>
+    <meta name="description" content="升维不是在旧问题里寻找更好的答案，而是审视目标、质疑假设、重构问题。当默认不变的条件变成变量，新的解法才会出现。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="../../../../assets/brand/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="../../../../assets/brand/apple-touch-icon.png" />
+    <link rel="stylesheet" href="../../../../assets/article.css" />
+  </head>
+  <body data-topic="system">
+    <main class="page">
+      <nav class="crumbs reveal" aria-label="面包屑导航">
+        <a href="../../../../">Evan Speak</a>
+        <span>/</span>
+        <a href="../../">自我系统</a>
+        <span>/</span>
+        <a href="../">相关笔记</a>
+      </nav>
+
+      <header class="hero reveal">
+        <span class="kicker">自我系统 / 思考方法</span>
+        <h1>如何在 1 分钟内讲清“升维”</h1>
+        <p class="summary">升维不是在旧问题里寻找更好的答案，而是审视目标、质疑假设、重构问题。当默认不变的条件变成变量，新的解法才会出现。</p>
+        <div class="meta">
+          <span class="state">成型</span>
+          <div class="tags"><span>思考方法</span><span>升维</span><span>问题定义</span></div>
+        </div>
+      </header>
+
+      <article class="body">
+        <p>升维，就是不急着在原来的问题里找答案，而是退一步，重新审视问题本身。</p>
+        <p>人在思考时，往往会默认两样东西：</p>
+        <ol><li>某些条件不能改变；</li><li>自己说出来的目标，就是真正想要的结果。</li></ol>
+        <p>比如，一个人问：“怎样更高效地完成所有工作？”</p>
+        <p>普通思考是在时间管理上找办法；升维思考则会问：</p>
+        <ul><li>所有工作真的都需要完成吗？</li><li>我真正想要的是完成更多工作，还是产生更重要的结果？</li></ul>
+        <p>当我们把原来默认不变的条件变成变量，把表面的目标还原成真正的需求，问题本身就会被重新定义，新的解法也会随之出现。</p>
+        <blockquote><p>一句话总结 升维不是在旧问题里寻找更好的答案，而是通过审视目标和假设，找到真正的问题。</p></blockquote>
+        <h2>记忆公式</h2>
+        <p><strong>审视目标 → 质疑假设 → 重构问题</strong></p>
+      </article>
+
+      <aside class="related reveal" aria-label="关联信息">
+        <div>
+          <h2>这篇文章回应的问题</h2>
+          <p>怎么用一分钟让别人听懂“升维”这件事。</p>
+        </div>
+        <div>
+          <h2>关联阅读</h2>
+          <p><a href="../../../system/notes/build-in-public-notes/">公开构建会让笔记真正活起来</a> —— 这个想法后来怎么被整理成一篇可交付的笔记</p>
+        </div>
+      </aside>
+
+      <p class="foot reveal"><a href="../">&larr; 返回自我系统相关笔记</a></p>
+    </main>
+
+    <script>
+      const items = document.querySelectorAll(".reveal");
+
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
+        );
+
+        items.forEach((item) => observer.observe(item));
+      } else {
+        items.forEach((item) => item.classList.add("is-visible"));
+      }
+    </script>
+  </body>
+</html>

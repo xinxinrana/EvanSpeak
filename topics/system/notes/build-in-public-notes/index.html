@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>公开构建会让笔记真正活起来 | Evan Speak</title>
+    <meta name="description" content="很多笔记没有复利，不是因为记得不够多，而是因为从来没有完成过。公开不只是传播，更像一种对完成度的约束。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="../../../../assets/brand/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="../../../../assets/brand/apple-touch-icon.png" />
+    <link rel="stylesheet" href="../../../../assets/article.css" />
+  </head>
+  <body data-topic="system">
+    <main class="page">
+      <nav class="crumbs reveal" aria-label="面包屑导航">
+        <a href="../../../../">Evan Speak</a>
+        <span>/</span>
+        <a href="../../">自我系统</a>
+        <span>/</span>
+        <a href="../">相关笔记</a>
+      </nav>
+
+      <header class="hero reveal">
+        <span class="kicker">自我系统 / 笔记方法</span>
+        <h1>公开构建会让笔记真正活起来</h1>
+        <p class="summary">很多笔记没有复利，不是因为记得不够多，而是因为从来没有完成过。公开不只是传播，更像一种对完成度的约束。</p>
+        <div class="meta">
+          <span class="state">成型</span>
+          <div class="tags"><span>Building in Public</span><span>笔记方法</span><span>Obsidian</span></div>
+        </div>
+      </header>
+
+      <article class="body">
+        <p>以前我记了很多笔记，但后来几乎没有再打开过。</p>
+        <p>不是内容没有价值，而是它们一直停留在草稿状态：只有几个关键词、半句话，或者一些只有当时的我才能看懂的想法。</p>
+        <p>每次想重新使用，都要先回忆背景、补全逻辑、重新整理。久而久之，看到那一坨内容就不想动了。</p>
+        <p>最近我试着把一个关于“升维”的想法，整理成一份能在 1 分钟内讲清楚的完整版本，然后保存进 Obsidian。</p>
+        <p>这个过程让我突然意识到：</p>
+        <p><strong>Building in Public 的一个隐藏价值，是它会迫使你交付。</strong></p>
+        <p>当我知道这份内容可能要拿给别人看，我就不能再只写几个自己勉强看得懂的词。我需要把它的逻辑补完整，把表达变清楚，让一个不了解背景的人也能直接读懂。</p>
+        <p>公开在这里不只是传播，更像一种对完成度的约束。</p>
+        <p>原来的笔记只是“我曾经想过”；整理之后，它才真正变成一个可以直接阅读、分享、引用，也可以交给 AI 继续加工的成品。</p>
+        <p>而且这种完整的公开版本，对未来的自己也很友好。过一段时间再回来，我不需要重新考古，可以直接拿起来用。</p>
+        <p>所以我现在有一个很具体的感受：</p>
+        <p><strong>很多笔记之所以没有复利，不是因为记得不够多，而是因为从来没有完成最后那一步——把它做成可交付的版本。</strong></p>
+        <p>Building in Public，某种程度上就是在给每一次思考加上这最后一步。</p>
+        <p>它让“记录过”变成“完成过”，也让今天的一次思考，成为未来还能继续使用的资产。</p>
+        <p>以后我可能会少留一点只有自己看得懂的草稿，多做一点哪怕很小、但可以直接交付的成品。</p>
+        <p>毕竟真正能积累下来的，往往不是我们想过多少，而是我们完成了多少。</p>
+        <h2>备选标题</h2>
+        <ol><li>为什么你的笔记记了很多，却几乎不会再用？</li><li>Building in Public，让我的笔记从草稿变成了资产</li><li>我开始少记笔记，多做“可交付的成品”</li><li>公开分享的隐藏好处：它会逼你真正完成</li><li>不是笔记没价值，是它一直没有被做完</li></ol>
+        <h2>发布标签</h2>
+        <p>#BuildingInPublic #公开构建 #Obsidian #笔记方法 #个人成长 #知识管理 #AI工作流</p>
+      </article>
+
+      <aside class="related reveal" aria-label="关联信息">
+        <div>
+          <h2>这篇文章回应的问题</h2>
+          <p>记了很多笔记却几乎没有再打开过，问题到底出在哪。</p>
+        </div>
+        <div>
+          <h2>关联阅读</h2>
+          <p><a href="../../../system/notes/explaining-level-up/">如何在 1 分钟内讲清“升维”</a> —— 被整理成完整版本的那个想法</p>
+        </div>
+      </aside>
+
+      <p class="foot reveal"><a href="../">&larr; 返回自我系统相关笔记</a></p>
+    </main>
+
+    <script>
+      const items = document.querySelectorAll(".reveal");
+
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
+        );
+
+        items.forEach((item) => observer.observe(item));
+      } else {
+        items.forEach((item) => item.classList.add("is-visible"));
+      }
+    </script>
+  </body>
+</html>

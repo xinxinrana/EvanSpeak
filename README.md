@@ -10,7 +10,7 @@ Evan Speak 是一个地图式数字花园首页原型，用于承载个人主页
 - 自我系统
 - 观察
 
-每个主题可以继续扩展相关笔记、阅读路径和问题节点。当前内容页均为占位状态，显示为“待更新”。
+每个主题下承载已经整理完成的笔记，尚未铺开的内容保留“待更新”状态。点击首页的主题岛屿，右侧会直接列出该主题的笔记，不需要再进一层。
 
 ## 项目结构
 
@@ -18,16 +18,20 @@ Evan Speak 是一个地图式数字花园首页原型，用于承载个人主页
 .
 ├── index.html                 # 首页
 ├── styles.css                 # 首页样式
-├── assets/                    # 网站图像资源
+├── assets/                    # 网站图像资源与共享样式
+│   ├── article.css            # 文章页阅读版式
+│   ├── list.css               # 列表页与主题落地页样式
 │   ├── textures/              # 纸张纹理
 │   ├── islands/               # 透明岛屿 PNG
 │   └── islands/raw/           # 原始色键图
 ├── docs/                      # 项目文档
-├── notes/                     # 所有笔记占位页
+├── notes/                     # 所有笔记列表
 ├── paths/                     # 阅读路径占位页
 ├── explore/                   # 继续探索占位页
-└── topics/                    # 主题页面与主题下的笔记/路径占位页
+└── topics/                    # 主题页面与主题下的笔记/路径
 ```
+
+新增笔记的做法见[内容规范](docs/content-spec.md)。
 
 ## 本地预览
 
@@ -38,6 +42,7 @@ Evan Speak 是一个地图式数字花园首页原型，用于承载个人主页
 ## 设计文档
 
 - [地图式数字花园设计简报](docs/digital-garden-brief.md)
+- [内容规范](docs/content-spec.md)
 - [网站图像资源工作方法](docs/asset-workflow.md)
 - [部署与构建策略](docs/deployment-strategy.md)
 - [资源清单](assets/README.md)

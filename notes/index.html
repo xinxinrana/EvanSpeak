@@ -4,32 +4,157 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>所有笔记 | Evan Speak</title>
-    <style>
-      body { margin: 0; min-height: 100vh; font-family: "Noto Serif SC", "Microsoft YaHei", serif; color: #24201b; background: #f4efe5; }
-      main { width: min(920px, calc(100vw - 40px)); margin: 0 auto; padding: 64px 0; }
-      nav { margin-bottom: 48px; color: #716d65; font-size: 14px; }
-      nav a { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(36, 32, 27, 0.3); }
-      h1 { margin: 0 0 18px; font-size: 48px; line-height: 1.1; }
-      .lead { margin: 0 0 42px; color: #716d65; font-size: 17px; line-height: 1.9; }
-      .note-list { display: grid; gap: 18px; }
-      .note-card { display: grid; gap: 10px; padding: 24px 26px; color: inherit; text-decoration: none; border: 1px solid rgba(77, 70, 60, 0.16); border-radius: 8px; background: rgba(255, 255, 255, 0.28); }
-      .note-card:hover { border-color: rgba(77, 70, 60, 0.34); }
-      .note-card strong { font-size: 24px; }
-      .note-card span { color: #716d65; line-height: 1.8; }
-      .status { width: fit-content; padding: 4px 10px; border-radius: 999px; background: rgba(127, 153, 175, 0.18); color: #526a7d; font-size: 13px; }
-    </style>
+    <link rel="icon" href="../assets/brand/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="../assets/brand/apple-touch-icon.png" />
+    <link rel="stylesheet" href="../assets/list.css" />
   </head>
   <body>
     <main>
-      <nav><a href="../">Evan Speak</a></nav>
+      <nav class="crumbs" aria-label="面包屑导航">
+        <a href="../">Evan Speak</a>
+      </nav>
       <h1>所有笔记</h1>
       <p class="lead">这里汇总所有已经整理进数字花园的内容。未完成内容会保留“待整理”或“待更新”状态。</p>
 
       <section class="note-list" aria-label="笔记列表">
+        <a class="note-card" href="../topics/product/notes/agentnote-introduction/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>产品 · 工具介绍</div>
+          <strong>agentNote 产品介绍：让知识成为所有 AI 的协作语言</strong>
+          <span>一个以 Obsidian 为本地知识中枢的插件：把选中的笔记、文件或文件夹变成一条活链接交给任意 AI，原始资料仍由你保管，内容更新后链接指向的也是最新版本。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/product/notes/visual-collaboration-prompting/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>产品 · AI 视觉</div>
+          <strong>产品视觉协作提示词方法论：从产品主张到海报系列</strong>
+          <span>把一个还在形成中的产品想法转成一组可用视觉：先找产品的真实动作，再把自然语言反馈翻译成可执行的视觉约束，最后让链接成为统一的视觉语言。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/product/notes/vendor-agent-methodology/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>产品 · 协作方法</div>
+          <strong>乙方 Agent 方法论：把事办漂亮，也让甲方心情好</strong>
+          <span>目标由甲方决定，推进由乙方管理；常规判断由乙方承担，关键取舍由甲方拍板。一套让 AI 真正对项目负责、同时降低对方思考负担的协作框架。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/product/notes/agentnote-three-things/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>产品 · 设计取舍</div>
+          <strong>agentNote 项目期望 · 大道至简三件事</strong>
+          <span>agentNote 的定位是用户与 AI agent 之间的显式记忆层。所有能力收敛成三件事：agent 写、agent 读、agent 懂规范 —— 第三条是整套设计的灵魂。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/product/notes/agentnote-devlog/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>产品 · 开发日志</div>
+          <strong>产品开发日志 · agentNote 迭代记录</strong>
+          <span>2026 年 9 月 16 日的开发记录：为什么先做首次使用体验，为什么调整 agent 的更新方式与文档结构 —— 一篇关于“先让价值被感知”的产品日志。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/ai/notes/sensation-to-cognition/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>AI · 认知方法</div>
+          <strong>AI 交互感觉认识方法论</strong>
+          <span>把模糊的感受转成可以追溯的认知：先锚定一句可检验的命题，再从多个领域归因，最后用一对对立属性收束出判断。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/ai/notes/good-prompts-lower-friction/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>AI · 人机协作</div>
+          <strong>好的提示词，不一定让 AI 更聪明</strong>
+          <span>一段常用的初始提示词确实让对话质量变好了，但起作用的原因不是“让模型变聪明”，而是它外化了我的思考习惯，并在回答时把内容重新组织了一遍。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/ai/notes/prompt-as-direction/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>AI · 提示词</div>
+          <strong>提示词生成方法论：少而定方向</strong>
+          <span>提示词不是需求文档，作用只是给 AI 一个正确的起点：我是谁，我需要什么。越早堆入限定、步骤和格式，越容易把它限制在提问者已有的认知里。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/ai/notes/managing-a-brilliant-rookie/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>AI · 协作方法</div>
+          <strong>带一个非常聪明、执行力很强，但工作经验非常低的实习生</strong>
+          <span>反应快、产出高，短期记忆惊人，长期记忆却像漏水的桶，还会用编造填补空白 —— 和一个“高智商低经验”的合作者共事，需要一套特制方案。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/ai/notes/real-problem-decoder/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>AI · 问题定义</div>
+          <strong>Real-Problem Decoder</strong>
+          <span>回答用户措辞背后的问题，而不是措辞里的那个消费框架。目标不是显得聪明，而是避免用工具、购买、模仿或身份安慰去解决一个错误的问题。</span>
+          <span class="status accent">成型</span>
+        </a>
+
         <a class="note-card" href="../topics/ai/notes/feeling-to-phenomenon/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>AI · 感受工程</div>
           <strong>把感觉翻译成现象</strong>
-          <span>AI / 感受工程。原始 HTML 内容以 iframe 嵌入，外层页面负责导航、说明和阅读容器。</span>
+          <span>关于 AI 时代里，把主观感受拆解成结构、现象、参数与可执行系统的能力。</span>
           <span class="status">待整理</span>
+        </a>
+
+        <a class="note-card" href="../topics/business/notes/xiaohongshu-human-voice/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>商业 · 内容写作</div>
+          <strong>小红书「有人感、分享味」写作方法论</strong>
+          <span>内容的价值由三部分共同构成：可用信息 × 主体视角 × 社交温度。三者缺一，就会分别滑向空洞抒情、无感清单或用力过猛的营销。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/business/notes/xiaohongshu-content-appeal/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>商业 · 内容分析</div>
+          <strong>小红书内容让人喜欢的方法论应用</strong>
+          <span>用「现象 → 归因 → 分类 → 洞察」框架，把“好的内容为什么让人喜欢”这个模糊感受，拆成一句可检验的命题和三条可落地的动作。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/business/notes/content-commerce-writing/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>商业 · 内容写作</div>
+          <strong>内容电商文章：写作方法论</strong>
+          <span>一种“心理洞察递进式”写法：不急着讲产品或结论，先描述读者已有却说不清的感受，再逐步解释成因、建立新认知，最后落到可执行结论。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/business/notes/content-commerce-original/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>商业 · 内容素材</div>
+          <strong>内容电商：原始内容</strong>
+          <span>内容电商面对的往往不是明确需求，而是模糊心理。创作者真正要切中的，不只是用户需要什么商品，而是他此刻处在什么心理状态里。</span>
+          <span class="status accent">萌芽</span>
+        </a>
+
+        <a class="note-card" href="../topics/system/notes/developmental-explanation/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>自我系统 · 结构化表达</div>
+          <strong>发展式阐述：为什么按因果链讲事情最清楚</strong>
+          <span>把一件事讲清楚，靠的不是罗列事实，而是按矛盾的接力展开：上一环的解决方案，如何成为下一环问题的起点。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/system/notes/low-friction-to-writing/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>自我系统 · 写作方法</div>
+          <strong>把低摩擦交互迁移到文章与文档</strong>
+          <span>一篇文章最大的浪费，不是没有干货，而是干货还没被读到，读者就已经离开了。开头负责争取继续阅读的机会，正文负责兑现承诺。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/system/notes/explaining-level-up/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>自我系统 · 思考方法</div>
+          <strong>如何在 1 分钟内讲清“升维”</strong>
+          <span>升维不是在旧问题里寻找更好的答案，而是审视目标、质疑假设、重构问题。当默认不变的条件变成变量，新的解法才会出现。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/system/notes/build-in-public-notes/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>自我系统 · 笔记方法</div>
+          <strong>公开构建会让笔记真正活起来</strong>
+          <span>很多笔记没有复利，不是因为记得不够多，而是因为从来没有完成过。公开不只是传播，更像一种对完成度的约束。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="../topics/observe/notes/a-warm-croissant/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>观察 · 日常与情绪</div>
+          <strong>一个热可颂和《当下的力量》</strong>
+          <span>一场争吵之后的清晨，被一个刚烤好的可颂拉回当下。情绪没有消失，但它不再等于我。</span>
+          <span class="status accent">成型</span>
         </a>
       </section>
     </main>

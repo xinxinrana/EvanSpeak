@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>产品视觉协作提示词方法论：从产品主张到海报系列 | Evan Speak</title>
+    <meta name="description" content="把一个还在形成中的产品想法转成一组可用视觉：先找产品的真实动作，再把自然语言反馈翻译成可执行的视觉约束，最后让链接成为统一的视觉语言。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="../../../../assets/brand/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="../../../../assets/brand/apple-touch-icon.png" />
+    <link rel="stylesheet" href="../../../../assets/article.css" />
+  </head>
+  <body data-topic="product">
+    <main class="page">
+      <nav class="crumbs reveal" aria-label="面包屑导航">
+        <a href="../../../../">Evan Speak</a>
+        <span>/</span>
+        <a href="../../">产品</a>
+        <span>/</span>
+        <a href="../">相关笔记</a>
+      </nav>
+
+      <header class="hero reveal">
+        <span class="kicker">产品 / AI 视觉</span>
+        <h1>产品视觉协作提示词方法论：从产品主张到海报系列</h1>
+        <p class="summary">把一个还在形成中的产品想法转成一组可用视觉：先找产品的真实动作，再把自然语言反馈翻译成可执行的视觉约束，最后让链接成为统一的视觉语言。</p>
+        <div class="meta">
+          <span class="state">成型</span>
+          <div class="tags"><span>产品设计</span><span>AI 图像生成</span><span>提示词方法论</span><span>视觉传播</span></div>
+        </div>
+      </header>
+
+      <article class="body">
+        <h2>适用场景</h2>
+        <p>用于将一个还在形成中的产品想法，逐步转化为一组可用的 AI 生成视觉。尤其适合产品功能复杂、需要用海报或信息图向用户讲清价值的场景。</p>
+        <p>本次实践对象是 agentNote：以 Obsidian 为本地文档仓库，通过 s-x 活链接把文本、文件、文件夹及其背景交给不同 agent，并把用户置于调度中心。</p>
+        <h2>一、先找产品动作，不从风格开始</h2>
+        <p>高质量视觉的起点不是“做得科技感一些”，而是回答：用户在产品里真正完成了什么动作？</p>
+        <p>本次最终收敛为四个可视化动作：</p>
+        <ol><li>用户在 Obsidian 中沉淀知识。</li><li>用户将文本、文件或文件夹生成 s-x 活链接。</li><li>用户把链接作为上下文交给不同 agent 或新任务。</li><li>agent 读取最新内容，成果再回到用户的知识库或任务中。</li></ol>
+        <p>每张海报只承担一个动作或一个价值主张：</p>
+        <ul><li>调度台：用户用 Obsidian 文档调度多种 agent。</li><li>分享：在 Obsidian 右键菜单中复制 s-x 链接。</li><li>原理图：文档 → 活链接 → agent → 结果写回。</li><li>分享多样性：文本、文件、文件夹都能分享。</li><li>使用演示：已有笔记只需粘贴链接即可复用。</li><li>品牌主视觉：一个活链接让知识成为多 agent 的协作语言。</li></ul>
+        <p>原则：一张图只让用户“一眼懂一件事”。</p>
+        <h2>二、把自然语言反馈翻译成可执行的视觉约束</h2>
+        <p>用户给出的是判断，生成提示需要把它转译成构图、对象关系和禁止项。</p>
+        <div class="table-wrap"><table><thead><tr><th>用户反馈</th><th>可执行的视觉翻译</th></tr></thead><tbody><tr><td>“脱离了 Obsidian”</td><td>把 Obsidian 标志和文档仓库放在视觉中心；所有连线经由该中心。</td></tr><tr><td>“更明亮一些”</td><td>暖白背景、淡紫/天蓝渐变、轻阴影；明确排除深色和魔法氛围。</td></tr><tr><td>“让人一眼看懂作用”</td><td>用左到右或上到下的单一流向；用箭头、链条、任务卡与回写箭头代替抽象装饰。</td></tr><tr><td>“多用产品图标”</td><td>agent 使用清晰、彼此区分的产品徽章；图标是角色，不是背景装饰。</td></tr><tr><td>“体现复用方便、输入简单”</td><td>展示真实输入框；只保留一条新任务与少量 s-x 链接，明确不出现长文复制或上传操作。</td></tr></tbody></table></div>
+        <p>这比反复说“高级一点”“好看一点”有效，因为它直接改变画面的信息架构。</p>
+        <h2>三、提示词的稳定结构</h2>
+        <p>生成产品海报时，按以下顺序描述，结果更可控：</p>
+        <ol><li><strong>用途</strong>：海报、功能发布图、原理图或使用演示。</li><li><strong>主张</strong>：这张图要让人相信的唯一一句话。</li><li><strong>核心对象</strong>：必须出现、且必须能识别的产品元素。</li><li><strong>对象关系</strong>：谁发起、谁居中、信息往哪里流、是否回写。</li><li><strong>构图层级</strong>：标题区、核心区域、辅助步骤或说明所在位置。</li><li><strong>风格系统</strong>：明暗、材质、色板、排版气质。</li><li><strong>精确文案</strong>：需要展示的标题、说明、标签，逐字提供。</li><li><strong>限制条件</strong>：明确排除会破坏产品理解的内容。</li></ol>
+        <p>可复用提示骨架：</p>
+        <p>```text<br />用途：&lt;海报类型&gt;<br />唯一主张：&lt;用户一眼应该理解什么&gt;<br />核心对象：&lt;必须辨认的产品、功能、图标&gt;<br />关系：&lt;对象 A → 对象 B → 结果；谁是中心&gt;<br />构图：&lt;标题区、主视觉、辅助说明的位置&gt;<br />风格：&lt;明暗、色板、材质、品牌气质&gt;<br />文案：&lt;逐字内容&gt;<br />限制：&lt;不允许出现的风格、对象、复杂度&gt;<br />```</p>
+        <h2>四、真实产品画面不是装饰，而是证据</h2>
+        <p>当需要证明功能已经存在时，应把真实截图作为视觉依据，而不是让模型凭空画一个“类似界面”。</p>
+        <p>本次两个有效方式：</p>
+        <ul><li>用 Obsidian 右键菜单作为“分享”功能的核心证据，并放大 <code>agentNote: 分享（复制 s-x 链接）</code>。</li><li>用 WorkBuddy 的输入框作为“笔记复用”的核心证据，突出只需输入任务和少量链接。</li></ul>
+        <p>截图在这种海报中的角色是产品证据；渐变、放大镜、流程线和标题只负责引导用户注意它。</p>
+        <h2>五、让链接成为统一的视觉语言</h2>
+        <p>agentNote 的抽象能力是 s-x 活链接，因此它需要被稳定地画成一个可重复识别的“产品符号”：紫色链接 token、链条图标或带链接的卡片。</p>
+        <p>同一符号应同时出现在：</p>
+        <ul><li>右键“分享”功能图；</li><li>三种分享对象图；</li><li>任务输入与笔记复用图；</li><li>多 agent 调度图；</li><li>品牌主视觉。</li></ul>
+        <p>这样，用户会逐渐把“链接”理解为 agentNote 的协作接口，而不是普通 URL。</p>
+        <h2>六、迭代时优先改语义，再改风格</h2>
+        <p>推荐顺序：</p>
+        <ol><li>先验证产品是否被讲对：Obsidian 是否是中心？用户是否拥有调度权？链接是否看得见？</li><li>再验证信息是否读得懂：流向是否单一？一张图是否只有一个重点？</li><li>最后才统一视觉：明亮度、色板、材质、图标样式、留白。</li></ol>
+        <p>本次最关键的修正不是某个颜色，而是将“泛 AI 指挥者”改为“Obsidian 文档仓库 + agentNote 调度层 + 多 agent”。这类语义修正会显著提升海报的产品解释力。</p>
+        <h2>七、最终检查清单</h2>
+        <p>生成前检查：</p>
+        <ul><li>是否只有一个明确主张？</li><li>产品本身是否可被识别，而不是被通用 AI 图像替代？</li><li>用户是否位于控制关系的起点？</li><li>数据或任务的去向和回流是否明确？</li><li>真实界面出现时，关键操作是否比装饰更显眼？</li><li>文案是否足够少，且可逐字检查？</li><li>是否明确排除了深色、魔法感、机器人、泛仪表盘等偏离产品的视觉惯性？</li></ul>
+        <h2>结论</h2>
+        <p>最有效的协作方式是：用户用短句持续校准产品判断，设计执行将这些判断翻译为“主角、关系、层级、限制”四类视觉约束。不要把生成当作一次性出图；将它视为从产品语义到视觉语义的连续收敛过程。</p>
+      </article>
+
+      <aside class="related reveal" aria-label="关联信息">
+        <div>
+          <h2>这篇文章回应的问题</h2>
+          <p>产品功能复杂时，怎么用海报或信息图把自己的价值讲清楚，而不是先去追“科技感”。</p>
+        </div>
+        <div>
+          <h2>关联阅读</h2>
+          <p><a href="../../../product/notes/agentnote-introduction/">agentNote 产品介绍：让知识成为所有 AI 的协作语言</a> —— 这一组视觉的实践对象</p>
+        </div>
+      </aside>
+
+      <p class="foot reveal"><a href="../">&larr; 返回产品相关笔记</a></p>
+    </main>
+
+    <script>
+      const items = document.querySelectorAll(".reveal");
+
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
+        );
+
+        items.forEach((item) => observer.observe(item));
+      } else {
+        items.forEach((item) => item.classList.add("is-visible"));
+      }
+    </script>
+  </body>
+</html>

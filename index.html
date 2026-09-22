@@ -87,7 +87,6 @@
       </section>
 
       <aside class="detail" aria-label="当前主题详情">
-        <button class="close" type="button" aria-label="关闭详情">×</button>
         <div class="detail-inner">
           <div class="detail-title-row">
             <span id="topicDot" class="detail-dot"></span>
@@ -98,17 +97,14 @@
             探索人工智能的本质、能力边界与演化路径，以及它如何影响我们的工作、学习与协作方式。保持开放与审慎，寻找可验证的认知与实践。
           </p>
 
-          <div class="link-list">
-            <a id="noteLink" href="topics/ai/notes/">
-              <span class="paper-icon" aria-hidden="true"></span>
-              <span>查看相关笔记</span>
-              <span class="arrow" aria-hidden="true">→</span>
-            </a>
-            <a id="pathLink" href="topics/ai/paths/">
-              <span class="chain-icon" aria-hidden="true"></span>
-              <span>查看相关路径</span>
-              <span class="arrow" aria-hidden="true">→</span>
-            </a>
+          <section class="panel-notes" aria-label="该主题下的笔记">
+            <div class="panel-notes-label">相关笔记</div>
+            <div id="noteList"></div>
+          </section>
+
+          <div class="sub-links">
+            <a id="allNotesLink" href="topics/ai/notes/">全部笔记 →</a>
+            <a id="pathLink" href="topics/ai/paths/">相关路径 →</a>
           </div>
 
           <div class="status">
@@ -131,6 +127,13 @@
           status: "修订中",
           notesHref: "topics/product/notes/",
           pathsHref: "topics/product/paths/",
+          notes: [
+            { title: "agentNote 产品介绍：让知识成为所有 AI 的协作语言", hint: "工具介绍 · 成型", href: "topics/product/notes/agentnote-introduction/" },
+            { title: "产品视觉协作提示词方法论：从产品主张到海报系列", hint: "AI 视觉 · 成型", href: "topics/product/notes/visual-collaboration-prompting/" },
+            { title: "乙方 Agent 方法论：把事办漂亮，也让甲方心情好", hint: "协作方法 · 成型", href: "topics/product/notes/vendor-agent-methodology/" },
+            { title: "agentNote 项目期望 · 大道至简三件事", hint: "设计取舍 · 成型", href: "topics/product/notes/agentnote-three-things/" },
+            { title: "产品开发日志 · agentNote 迭代记录", hint: "开发日志 · 成型", href: "topics/product/notes/agentnote-devlog/" },
+          ],
         },
         ai: {
           title: "AI",
@@ -139,6 +142,14 @@
           status: "萌芽",
           notesHref: "topics/ai/notes/",
           pathsHref: "topics/ai/paths/",
+          notes: [
+            { title: "AI 交互感觉认识方法论", hint: "认知方法 · 成型", href: "topics/ai/notes/sensation-to-cognition/" },
+            { title: "好的提示词，不一定让 AI 更聪明", hint: "人机协作 · 成型", href: "topics/ai/notes/good-prompts-lower-friction/" },
+            { title: "提示词生成方法论：少而定方向", hint: "提示词 · 成型", href: "topics/ai/notes/prompt-as-direction/" },
+            { title: "带一个非常聪明、执行力很强，但工作经验非常低的实习生", hint: "协作方法 · 成型", href: "topics/ai/notes/managing-a-brilliant-rookie/" },
+            { title: "Real-Problem Decoder", hint: "问题定义 · 成型", href: "topics/ai/notes/real-problem-decoder/" },
+            { title: "把感觉翻译成现象", hint: "感受工程 · 待整理", href: "topics/ai/notes/feeling-to-phenomenon/" },
+          ],
         },
         business: {
           title: "商业",
@@ -147,6 +158,12 @@
           status: "萌芽",
           notesHref: "topics/business/notes/",
           pathsHref: "topics/business/paths/",
+          notes: [
+            { title: "小红书「有人感、分享味」写作方法论", hint: "内容写作 · 成型", href: "topics/business/notes/xiaohongshu-human-voice/" },
+            { title: "小红书内容让人喜欢的方法论应用", hint: "内容分析 · 成型", href: "topics/business/notes/xiaohongshu-content-appeal/" },
+            { title: "内容电商文章：写作方法论", hint: "内容写作 · 成型", href: "topics/business/notes/content-commerce-writing/" },
+            { title: "内容电商：原始内容", hint: "内容素材 · 萌芽", href: "topics/business/notes/content-commerce-original/" },
+          ],
         },
         system: {
           title: "自我系统",
@@ -155,6 +172,12 @@
           status: "成型",
           notesHref: "topics/system/notes/",
           pathsHref: "topics/system/paths/",
+          notes: [
+            { title: "发展式阐述：为什么按因果链讲事情最清楚", hint: "结构化表达 · 成型", href: "topics/system/notes/developmental-explanation/" },
+            { title: "把低摩擦交互迁移到文章与文档", hint: "写作方法 · 成型", href: "topics/system/notes/low-friction-to-writing/" },
+            { title: "如何在 1 分钟内讲清“升维”", hint: "思考方法 · 成型", href: "topics/system/notes/explaining-level-up/" },
+            { title: "公开构建会让笔记真正活起来", hint: "笔记方法 · 成型", href: "topics/system/notes/build-in-public-notes/" },
+          ],
         },
         observe: {
           title: "观察",
@@ -163,6 +186,9 @@
           status: "萌芽",
           notesHref: "topics/observe/notes/",
           pathsHref: "topics/observe/paths/",
+          notes: [
+            { title: "一个热可颂和《当下的力量》", hint: "日常与情绪 · 成型", href: "topics/observe/notes/a-warm-croissant/" },
+          ],
         },
       };
 
@@ -171,25 +197,51 @@
       const summary = document.querySelector("#topicSummary");
       const status = document.querySelector("#topicStatus");
       const dot = document.querySelector("#topicDot");
-      const noteLink = document.querySelector("#noteLink");
+      const noteList = document.querySelector("#noteList");
+      const allNotesLink = document.querySelector("#allNotesLink");
       const pathLink = document.querySelector("#pathLink");
 
-      islands.forEach((island) => {
-        island.addEventListener("click", () => {
-          const topicKey = island.dataset.topic;
-          const topic = topics[topicKey];
+      function renderNotes(notes) {
+        if (!notes.length) {
+          noteList.innerHTML = '<div class="panel-empty">这个主题还没有整理完成的笔记。</div>';
+          return;
+        }
 
-          islands.forEach((item) => item.classList.remove("active"));
-          island.classList.add("active");
+        noteList.innerHTML = notes
+          .map((note, index) => {
+            const order = String(index + 1).padStart(2, "0");
+            return `<a class="panel-note" href="${note.href}">
+              <span class="panel-note-index">${order}</span>
+              <span class="panel-note-body">
+                <span class="panel-note-title">${note.title}</span>
+                <span class="panel-note-hint">${note.hint}</span>
+              </span>
+            </a>`;
+          })
+          .join("");
+      }
 
-          title.textContent = topic.title;
-          summary.textContent = topic.summary;
-          status.innerHTML = `<span class="sprout" aria-hidden="true"></span>${topic.status}`;
-          dot.className = `detail-dot ${topicKey}`;
-          noteLink.href = topic.notesHref;
-          pathLink.href = topic.pathsHref;
+      function showTopic(topicKey) {
+        const topic = topics[topicKey];
+
+        islands.forEach((item) => {
+          item.classList.toggle("active", item.dataset.topic === topicKey);
         });
+
+        title.textContent = topic.title;
+        summary.textContent = topic.summary;
+        status.innerHTML = `<span class="sprout" aria-hidden="true"></span>${topic.status}`;
+        dot.className = `detail-dot ${topicKey}`;
+        allNotesLink.href = topic.notesHref;
+        pathLink.href = topic.pathsHref;
+        renderNotes(topic.notes);
+      }
+
+      islands.forEach((island) => {
+        island.addEventListener("click", () => showTopic(island.dataset.topic));
       });
+
+      showTopic("ai");
     </script>
     <!-- Cloudflare Web Analytics -->
     <script

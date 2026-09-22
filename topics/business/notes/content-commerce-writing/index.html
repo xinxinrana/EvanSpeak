@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>内容电商文章：写作方法论 | Evan Speak</title>
+    <meta name="description" content="一种“心理洞察递进式”写法：不急着讲产品或结论，先描述读者已有却说不清的感受，再逐步解释成因、建立新认知，最后落到可执行结论。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="../../../../assets/brand/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="../../../../assets/brand/apple-touch-icon.png" />
+    <link rel="stylesheet" href="../../../../assets/article.css" />
+  </head>
+  <body data-topic="business">
+    <main class="page">
+      <nav class="crumbs reveal" aria-label="面包屑导航">
+        <a href="../../../../">Evan Speak</a>
+        <span>/</span>
+        <a href="../../">商业</a>
+        <span>/</span>
+        <a href="../">相关笔记</a>
+      </nav>
+
+      <header class="hero reveal">
+        <span class="kicker">商业 / 内容写作</span>
+        <h1>内容电商文章：写作方法论</h1>
+        <p class="summary">一种“心理洞察递进式”写法：不急着讲产品或结论，先描述读者已有却说不清的感受，再逐步解释成因、建立新认知，最后落到可执行结论。</p>
+        <div class="meta">
+          <span class="state">成型</span>
+          <div class="tags"><span>内容电商</span><span>写作方法</span><span>结构</span></div>
+        </div>
+      </header>
+
+      <article class="body">
+        <h2>核心写法</h2>
+        <p>这是一种“心理洞察递进式”写法：不急于讲产品或结论，而是先描述读者已有却说不清的感受，再逐步解释成因、建立新认知，最后落到可执行结论。</p>
+        <h2>段落与节奏</h2>
+        <ul><li>每段通常 2—4 句，约 45—90 字。</li><li>短段推动阅读，关键判断独立成段，形成停顿和记忆点。</li><li>抽象概念后马上接具体生活场景或品类案例，避免空泛。</li><li>高频使用“不是……而是……”句式，完成读者认知的转向。</li></ul>
+        <h2>逻辑结构</h2>
+        <ol><li>先认可常识：从读者已认同的观点切入，降低防备。</li><li>指出盲区：说明原有常识无法解释的现象。</li><li>建立对比：用两种场景或模式对照，明确讨论主轴。</li><li>提出核心判断：把关注点从表层行为转到深层心理。</li><li>解释运行机制：展示从感受、问题到解决方案的转化链路。</li><li>用案例落地：用不同品类说明同一机制如何发挥作用。</li><li>分类展开：按不同心理卡点逐一分析“状态—表现—真实价值”。</li><li>提炼金句：把全文压缩为一个反直觉、易传播的结论。</li><li>理论背书：补充消费心理或行为经济学解释，增强说服力。</li><li>闭环收束：回扣开头，将结论转为创作者的行动方向。</li></ol>
+        <h2>常用论证链路</h2>
+        <p>心理状态 → 可感知的不适 → 被命名的具体问题 → 商品或服务的作用 → 用户获得行动许可。</p>
+        <p>例如：失控感 → 房间、时间、计划混乱 → 缺少秩序 → 收纳产品 → “我正在重新整理生活”。</p>
+        <h2>可复用写作公式</h2>
+        <p>大家都以为 A 很重要，但 A 只适用于某种情况。</p>
+        <p>真正的问题是 B。</p>
+        <p>因此，不要只看用户要什么，而要看他卡在哪里。</p>
+        <p>当你先说中他的处境，再解释问题，最后给出解决入口，产品才会变得合理。</p>
+        <p>所以，你卖的表面是产品，深层是某种心理价值或行动许可。</p>
+        <h2>写作要点</h2>
+        <p>最关键的不是直接输出观点，而是让读者先产生“这解释了我见过的现象”的认同。观点的说服力来自连续递进：被说中、被解释、被允许行动。</p>
+      </article>
+
+      <aside class="related reveal" aria-label="关联信息">
+        <div>
+          <h2>这篇文章回应的问题</h2>
+          <p>内容电商的文章该怎么组织，才能让人读得下去并愿意相信。</p>
+        </div>
+        <div>
+          <h2>关联阅读</h2>
+          <p><a href="../../../business/notes/content-commerce-original/">内容电商：原始内容</a> —— 这套写法所对应的原始素材</p>
+        </div>
+      </aside>
+
+      <p class="foot reveal"><a href="../">&larr; 返回商业相关笔记</a></p>
+    </main>
+
+    <script>
+      const items = document.querySelectorAll(".reveal");
+
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
+        );
+
+        items.forEach((item) => observer.observe(item));
+      } else {
+        items.forEach((item) => item.classList.add("is-visible"));
+      }
+    </script>
+  </body>
+</html>

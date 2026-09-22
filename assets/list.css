@@ -1,0 +1,184 @@
+:root {
+  --paper: #f4efe5;
+  --paper-soft: #faf6ee;
+  --ink: #24201b;
+  --muted: #716d65;
+  --line: rgba(77, 70, 60, 0.17);
+  --accent: #7f99af;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--paper);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--ink);
+  font-family: Inter, "Noto Serif SC", "Microsoft YaHei", sans-serif;
+  background:
+    url("textures/paper-warm.webp") center / 580px 580px repeat,
+    radial-gradient(circle at 22% 20%, rgba(255, 255, 255, 0.55), transparent 34%),
+    radial-gradient(circle at 80% 76%, rgba(188, 164, 128, 0.13), transparent 32%),
+    linear-gradient(135deg, #f8f3ea 0%, #f0e9de 100%);
+}
+
+body[data-topic="product"] {
+  --accent: #aeb7a4;
+}
+
+body[data-topic="ai"] {
+  --accent: #7f99af;
+}
+
+body[data-topic="business"] {
+  --accent: #c8a083;
+}
+
+body[data-topic="system"] {
+  --accent: #cfc3a8;
+}
+
+body[data-topic="observe"] {
+  --accent: #aeb9ac;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+main {
+  width: min(920px, calc(100vw - 44px));
+  margin: 0 auto;
+  padding: 64px 0 88px;
+}
+
+nav.crumbs {
+  margin-bottom: 48px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+nav.crumbs a {
+  border-bottom: 1px solid rgba(36, 32, 27, 0.3);
+}
+
+h1 {
+  margin: 0 0 18px;
+  font-family: "Noto Serif SC", "Microsoft YaHei", serif;
+  font-size: clamp(36px, 6vw, 52px);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.lead {
+  margin: 0 0 44px;
+  max-width: 40rem;
+  color: var(--muted);
+  font-family: "Noto Serif SC", "Microsoft YaHei", serif;
+  font-size: 17px;
+  line-height: 1.9;
+}
+
+.section-label {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.grid,
+.note-list {
+  display: grid;
+  gap: 18px;
+}
+
+.grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.card,
+.note-card {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 24px 26px;
+  color: inherit;
+  border: 1px solid rgba(77, 70, 60, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.28);
+  transition: border-color 160ms ease;
+}
+
+.card:hover,
+.note-card:hover {
+  border-color: rgba(77, 70, 60, 0.34);
+}
+
+.card strong,
+.note-card strong {
+  font-family: "Noto Serif SC", "Microsoft YaHei", serif;
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.card span,
+.note-card span {
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.status {
+  width: fit-content;
+  padding: 4px 11px;
+  color: #6b6760;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+}
+
+.status.accent {
+  color: #514d45;
+  border-color: transparent;
+  background: rgba(219, 211, 191, 0.58);
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  main {
+    width: min(100% - 36px, 920px);
+    padding: 40px 0 64px;
+  }
+
+  nav.crumbs {
+    margin-bottom: 34px;
+  }
+
+  .card strong,
+  .note-card strong {
+    font-size: 20px;
+  }
+}

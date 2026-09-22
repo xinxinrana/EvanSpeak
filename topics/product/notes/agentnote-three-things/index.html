@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>agentNote 项目期望 · 大道至简三件事 | Evan Speak</title>
+    <meta name="description" content="agentNote 的定位是用户与 AI agent 之间的显式记忆层。所有能力收敛成三件事：agent 写、agent 读、agent 懂规范 —— 第三条是整套设计的灵魂。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="../../../../assets/brand/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="../../../../assets/brand/apple-touch-icon.png" />
+    <link rel="stylesheet" href="../../../../assets/article.css" />
+  </head>
+  <body data-topic="product">
+    <main class="page">
+      <nav class="crumbs reveal" aria-label="面包屑导航">
+        <a href="../../../../">Evan Speak</a>
+        <span>/</span>
+        <a href="../../">产品</a>
+        <span>/</span>
+        <a href="../">相关笔记</a>
+      </nav>
+
+      <header class="hero reveal">
+        <span class="kicker">产品 / 设计取舍</span>
+        <h1>agentNote 项目期望 · 大道至简三件事</h1>
+        <p class="summary">agentNote 的定位是用户与 AI agent 之间的显式记忆层。所有能力收敛成三件事：agent 写、agent 读、agent 懂规范 —— 第三条是整套设计的灵魂。</p>
+        <div class="meta">
+          <span class="state">成型</span>
+          <div class="tags"><span>agentNote</span><span>产品设计</span><span>边界</span></div>
+        </div>
+      </header>
+
+      <article class="body">
+        <p>agentNote 的期望定位：用户与 AI agent 之间的显式记忆层，以 Obsidian 插件形态落地。</p>
+        <p>设计哲学「大道至简」——对 agent 的叙事只讲三件事：</p>
+        <ol><li>agent 写：POST /api/nodes 写入记忆；</li><li>agent 读：GET /api/nodes 搜索、读取记忆；</li><li>agent 懂规范：每条记忆必带 boundary 三字段（background / scenarios / caveats），这是整个设计的灵魂。</li></ol>
+        <p>其余能力（s-x 分享活引用、分组、快照）都是这三件事的延伸：代码全部保留、功能正常，但不进入核心叙事。<br />数据是 vault 里的纯 markdown + JSON，frontmatter 即规范本体；历史交给 git，不做内置版本管理。</p>
+        <p>截至 2026-07-30，SKILL.md 的具体内容用户认为「还没设计好」，仍在迭代中。</p>
+      </article>
+
+      <aside class="related reveal" aria-label="关联信息">
+        <div>
+          <h2>这篇文章回应的问题</h2>
+          <p>一个给 agent 用的记忆层，最少需要讲清楚几件事，才不会失焦。</p>
+        </div>
+        <div>
+          <h2>关联阅读</h2>
+          <p><a href="../../../product/notes/agentnote-introduction/">agentNote 产品介绍：让知识成为所有 AI 的协作语言</a> —— 从外部看它是什么</p>
+        </div>
+      </aside>
+
+      <p class="foot reveal"><a href="../">&larr; 返回产品相关笔记</a></p>
+    </main>
+
+    <script>
+      const items = document.querySelectorAll(".reveal");
+
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
+        );
+
+        items.forEach((item) => observer.observe(item));
+      } else {
+        items.forEach((item) => item.classList.add("is-visible"));
+      }
+    </script>
+  </body>
+</html>

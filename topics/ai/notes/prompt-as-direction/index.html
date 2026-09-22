@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>提示词生成方法论：少而定方向 | Evan Speak</title>
+    <meta name="description" content="提示词不是需求文档，作用只是给 AI 一个正确的起点：我是谁，我需要什么。越早堆入限定、步骤和格式，越容易把它限制在提问者已有的认知里。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="../../../../assets/brand/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="../../../../assets/brand/apple-touch-icon.png" />
+    <link rel="stylesheet" href="../../../../assets/article.css" />
+  </head>
+  <body data-topic="ai">
+    <main class="page">
+      <nav class="crumbs reveal" aria-label="面包屑导航">
+        <a href="../../../../">Evan Speak</a>
+        <span>/</span>
+        <a href="../../">AI</a>
+        <span>/</span>
+        <a href="../">相关笔记</a>
+      </nav>
+
+      <header class="hero reveal">
+        <span class="kicker">AI / 提示词</span>
+        <h1>提示词生成方法论：少而定方向</h1>
+        <p class="summary">提示词不是需求文档，作用只是给 AI 一个正确的起点：我是谁，我需要什么。越早堆入限定、步骤和格式，越容易把它限制在提问者已有的认知里。</p>
+        <div class="meta">
+          <span class="state">成型</span>
+          <div class="tags"><span>提示词</span><span>方法论</span><span>起手式</span></div>
+        </div>
+      </header>
+
+      <article class="body">
+        <h2>核心观念</h2>
+        <p>提示词不是需求文档，也不是把思考过程预先写死的操作说明。它的作用是为 AI 提供一个正确的起点：<strong>我是谁，我需要什么。</strong></p>
+        <blockquote><p>我是【谁】，我需要【什么】。</p></blockquote>
+        <p>提示词越早堆入大量限定、步骤和格式，越容易把 AI 限制在提问者已有的认知里。好的提示词以启发为主，保留 AI 追问、联想、研究与展开的空间。</p>
+        <h2>一个新任务的起手式</h2>
+        <p>面对陌生任务，先不急着让 AI 给方案。先让它承担信息收集者，建立外部认知地图。</p>
+        <p>重点看两类信息：</p>
+        <ol><li><strong>别人怎么做</strong></li><li>开源项目</li><li>闭源产品</li><li>商业付费方案</li><li>免费工具或服务</li></ol>
+        <ol><li><strong>和我相似的人怎么做</strong></li><li>角色、资源或约束相近的人</li><li>他们公开分享的经验、复盘与踩坑</li><li>他们实际采用的路径和判断</li></ol>
+        <p>这不是为了收集尽可能多的信息，而是为了看到已有路径、可借用资源与真实代价，再形成自己的判断。</p>
+        <h2>角色是方向盘，不是履历表</h2>
+        <p>AI 需要的通常不是一长串背景，而是一个足以影响思考方向的角色定位。</p>
+        <ul><li>我是独立创作者，我需要了解别人如何完成这件事。</li><li>我是产品负责人，我需要为这个新功能找到可行路径。</li><li>我是第一次做这类事的人，我需要先建立基本认知。</li></ul>
+        <p>角色随任务变化即可。不要把自己固定成某个标签；只给出本次任务中真正影响答案的身份或处境。</p>
+        <h2>最小提示词模板</h2>
+        <h3>通用</h3>
+        <blockquote><p>我是【角色】，我需要【目标】。</p></blockquote>
+        <h3>陌生任务的研究型起手式</h3>
+        <blockquote><p>我是【角色】，我需要了解别人怎么做【任务】。</p></blockquote>
+        <h3>同角色借鉴</h3>
+        <blockquote><p>我是【角色】，我需要看看和我类似的人如何做【任务】。</p></blockquote>
+        <h2>何时再补充信息</h2>
+        <p>只有当补充内容会明显改变方向时再补：例如预算、时间、所在行业、已有资源、不可接受的风险。</p>
+        <p>其余细节优先让 AI 追问或在研究后提出。提示词的精髓不是“控制回答”，而是“给出方向”。</p>
+        <h2>自检</h2>
+        <p>发出前只问两件事：</p>
+        <ul><li>AI 是否知道我此刻以什么身份行动？</li><li>AI 是否知道我真正想得到什么？</li></ul>
+        <p>如果答案都是“知道”，提示词通常已经够了。</p>
+      </article>
+
+      <aside class="related reveal" aria-label="关联信息">
+        <div>
+          <h2>这篇文章回应的问题</h2>
+          <p>面对一个新任务，起手到底应该给 AI 写多详细的提示词。</p>
+        </div>
+        <div>
+          <h2>关联阅读</h2>
+          <p><a href="../../../ai/notes/good-prompts-lower-friction/">好的提示词，不一定让 AI 更聪明</a> —— 提示词真正起作用的方式</p>
+        </div>
+      </aside>
+
+      <p class="foot reveal"><a href="../">&larr; 返回AI相关笔记</a></p>
+    </main>
+
+    <script>
+      const items = document.querySelectorAll(".reveal");
+
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
+        );
+
+        items.forEach((item) => observer.observe(item));
+      } else {
+        items.forEach((item) => item.classList.add("is-visible"));
+      }
+    </script>
+  </body>
+</html>

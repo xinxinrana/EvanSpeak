@@ -3,30 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI 相关笔记 | Evan Speak</title>
-    <style>
-      body { margin: 0; min-height: 100vh; font-family: "Noto Serif SC", "Microsoft YaHei", serif; color: #24201b; background: #f4efe5; }
-      main { width: min(920px, calc(100vw - 40px)); margin: 0 auto; padding: 64px 0; }
-      nav { margin-bottom: 48px; color: #716d65; font-size: 14px; }
-      nav a { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(36, 32, 27, 0.3); }
-      h1 { margin: 0 0 18px; font-size: 48px; line-height: 1.1; }
-      .lead { margin: 0 0 42px; color: #716d65; font-size: 17px; line-height: 1.9; }
-      .note-list { display: grid; gap: 18px; }
-      .note-card { display: grid; gap: 10px; padding: 24px 26px; color: inherit; text-decoration: none; border: 1px solid rgba(77, 70, 60, 0.16); border-radius: 8px; background: rgba(255, 255, 255, 0.28); }
-      .note-card:hover { border-color: rgba(77, 70, 60, 0.34); }
-      .note-card strong { font-size: 24px; }
-      .note-card span { color: #716d65; line-height: 1.8; }
-      .status { width: fit-content; padding: 4px 10px; border-radius: 999px; background: rgba(127, 153, 175, 0.18); color: #526a7d; font-size: 13px; }
-    </style>
+    <title>AI相关笔记 | Evan Speak</title>
+    <link rel="icon" href="../../../assets/brand/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="../../../assets/brand/apple-touch-icon.png" />
+    <link rel="stylesheet" href="../../../assets/list.css" />
   </head>
-  <body>
+  <body data-topic="ai">
     <main>
-      <nav><a href="../../../">Evan Speak</a> / <a href="../">AI</a></nav>
-      <h1>AI 相关笔记</h1>
-      <p class="lead">这里收录 AI 分类下的思考、实验和原始内容嵌入页。</p>
+      <nav class="crumbs" aria-label="面包屑导航">
+        <a href="../../../">Evan Speak</a> / <a href="../">AI</a>
+      </nav>
+      <h1>AI相关笔记</h1>
+      <p class="lead">关于人机协作、提示词与问题定义的方法沉淀。</p>
 
-      <section class="note-list" aria-label="AI 笔记列表">
+      <section class="note-list" aria-label="AI笔记列表">
+        <a class="note-card" href="sensation-to-cognition/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>认知方法</div>
+          <strong>AI 交互感觉认识方法论</strong>
+          <span>把模糊的感受转成可以追溯的认知：先锚定一句可检验的命题，再从多个领域归因，最后用一对对立属性收束出判断。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="good-prompts-lower-friction/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>人机协作</div>
+          <strong>好的提示词，不一定让 AI 更聪明</strong>
+          <span>一段常用的初始提示词确实让对话质量变好了，但起作用的原因不是“让模型变聪明”，而是它外化了我的思考习惯，并在回答时把内容重新组织了一遍。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="prompt-as-direction/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>提示词</div>
+          <strong>提示词生成方法论：少而定方向</strong>
+          <span>提示词不是需求文档，作用只是给 AI 一个正确的起点：我是谁，我需要什么。越早堆入限定、步骤和格式，越容易把它限制在提问者已有的认知里。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="managing-a-brilliant-rookie/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>协作方法</div>
+          <strong>带一个非常聪明、执行力很强，但工作经验非常低的实习生</strong>
+          <span>反应快、产出高，短期记忆惊人，长期记忆却像漏水的桶，还会用编造填补空白 —— 和一个“高智商低经验”的合作者共事，需要一套特制方案。</span>
+          <span class="status accent">成型</span>
+        </a>
+
+        <a class="note-card" href="real-problem-decoder/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>问题定义</div>
+          <strong>Real-Problem Decoder</strong>
+          <span>回答用户措辞背后的问题，而不是措辞里的那个消费框架。目标不是显得聪明，而是避免用工具、购买、模仿或身份安慰去解决一个错误的问题。</span>
+          <span class="status accent">成型</span>
+        </a>
+
         <a class="note-card" href="feeling-to-phenomenon/">
+          <div class="card-head"><span class="dot" aria-hidden="true"></span>感受工程</div>
           <strong>把感觉翻译成现象</strong>
           <span>关于 AI 时代里，把主观感受拆解成结构、现象、参数与可执行系统的能力。</span>
           <span class="status">待整理</span>
