@@ -1,27 +1,27 @@
-# Evan Brand Assets
+# Evan 品牌资源
 
-This folder contains usable logo resources produced from the `VI/` visual references.
+这个目录存放由 `VI/` 视觉参考产出的、可直接使用的 logo 资源。
 
-## Ready-to-use Files
+## 可直接使用的文件
 
-- `evan-logo-transparent.png` - 1024px transparent master logo.
-- `evan-logo-white.png` - 1024px white-background master logo.
-- `apple-touch-icon.png` - 180px transparent app icon.
-- `android-chrome-192x192.png` - 192px transparent app icon.
-- `android-chrome-512x512.png` - 512px transparent app icon.
-- `icons/favicon.ico` - multi-size ICO with 16, 32, and 48px layers.
-- `icons/evan-logo.ico` - multi-size ICO with 16, 32, 48, 64, 128, and 256px layers.
-- `png/evan-logo-*.png` - transparent square PNG exports from 16px to 1024px.
+- `evan-logo-transparent.png` — 1024px 透明底主 logo。
+- `evan-logo-white.png` — 1024px 白底主 logo。
+- `apple-touch-icon.png` — 180px 透明 app icon。
+- `android-chrome-192x192.png` — 192px 透明 app icon。
+- `android-chrome-512x512.png` — 512px 透明 app icon。
+- `icons/favicon.ico` — 含 16 / 32 / 48px 三层的多尺寸 ICO。
+- `icons/evan-logo.ico` — 含 16 / 32 / 48 / 64 / 128 / 256px 六层的多尺寸 ICO。
+- `png/evan-logo-*.png` — 从 16px 到 1024px 的透明方形 PNG 导出。
 
-## Source Files
+## 源文件
 
-- `raw/evan-logo-white-bg.png` - Image Gen output on a white background.
-- `references/` - English-named copies of the original `VI/` reference boards.
+- `raw/evan-logo-white-bg.png` — Image Gen 输出的白底原图。
+- `references/` — 原始 `VI/` 参考板的英文命名副本。
 
-## Regenerate
+## 重新生成
 
 ```bash
 python scripts/build_brand_assets.py
 ```
 
-The script removes the near-white background, crops the logo onto a square transparent canvas, and writes all PNG and ICO outputs.
+脚本会去掉近白背景、把 logo 裁切到方形透明画布上，并写出全部 PNG 与 ICO 输出。

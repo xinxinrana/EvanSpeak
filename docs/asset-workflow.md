@@ -256,7 +256,7 @@ python -c "from PIL import Image; files=['assets/brand/evan-logo-transparent.png
 #ff00ff
 ```
 
-然后运行本地色键移除脚本，先输出未压缩透明 PNG：
+然后运行本地色键移除脚本，先输出未压缩透明 PNG。该脚本属于本地环境的工具，不在本仓库内，下面的绝对路径只是当时的实际用法示例；仓库只保留它的输出结果：
 
 ```powershell
 python "C:\Users\ASUS\.codex\skills\.system\imagegen\scripts\remove_chroma_key.py" `
@@ -369,6 +369,6 @@ Get-ChildItem -LiteralPath "assets\islands" -Filter *.webp | Select-Object Name,
 - Logo 页面引用：首页已引用 `assets/brand/icons/favicon.ico` 和 `assets/brand/apple-touch-icon.png`。
 - 纸张纹理：内置 Image Gen 生成，未压缩源文件归档到 `assets/uncompressed/textures/paper-warm.png`，网页加载版保存到 `assets/textures/paper-warm.webp`。
 - 五个岛屿：内置 Image Gen 生成 `#ff00ff` 色键图，保存到 `assets/islands/raw/`。
-- 透明 PNG：使用 `remove_chroma_key.py` 本地处理后保存到 `assets/uncompressed/islands/`。
+- 透明 PNG：使用本地色键移除脚本（仓库外的本地工具，不随仓库分发）处理后保存到 `assets/uncompressed/islands/`。
 - 网页加载版：从未压缩 PNG 缩放并压缩为 WebP，保存到 `assets/islands/`。
 - 首页引用：真实 HTML 叠加透明 WebP，文字与链接保持可编辑。

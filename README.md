@@ -1,6 +1,8 @@
 # Evan Speak
 
-Evan Speak 是一个地图式数字花园首页原型，用于承载个人主页和长期思考留存。
+Evan Speak 是一个地图式数字花园站点，用于承载个人主页和长期思考留存。
+
+线上地址：https://xinxinrana.github.io/EvanSpeak/
 
 这个站点不以时间线为核心，而是把内容组织成主题地图。当前首页包含五个主题岛屿：
 
@@ -22,12 +24,15 @@ Evan Speak 是一个地图式数字花园首页原型，用于承载个人主页
 │   ├── article.css            # 文章页阅读版式
 │   ├── list.css               # 列表页与主题落地页样式
 │   ├── textures/              # 纸张纹理
-│   ├── islands/               # 透明岛屿 PNG
-│   └── islands/raw/           # 原始色键图
+│   ├── islands/               # 透明岛屿 WebP（网页加载用）
+│   ├── islands/raw/           # 原始色键图（存档）
+│   ├── uncompressed/          # 未压缩透明 PNG（存档）
+│   └── brand/                 # Logo、favicon 与 VI 参考资料
 ├── docs/                      # 项目文档
 ├── notes/                     # 所有笔记列表
 ├── paths/                     # 阅读路径占位页
 ├── explore/                   # 继续探索占位页
+├── scripts/                   # 本地资源生成脚本
 └── topics/                    # 主题页面与主题下的笔记/路径
 ```
 
@@ -35,9 +40,23 @@ Evan Speak 是一个地图式数字花园首页原型，用于承载个人主页
 
 ## 本地预览
 
-这是一个静态 HTML 网站，可以直接打开 `index.html` 预览。
+```bash
+python -m http.server 8899 --bind 127.0.0.1
+```
 
-如果需要用本地服务预览，也可以在项目根目录启动任意静态服务器。
+然后访问 http://127.0.0.1:8899/ 。
+
+**要用本地服务，不能直接双击打开 `index.html`。** 站内页面在子目录里（如 `topics/ai/notes/xxx/`），`file://` 协议不会自动解析子目录下的 `index.html`，会落到浏览器的目录列表页。
+
+## 克隆
+
+仓库约 27 MB，其中四分之三是存档用的原始图片（`VI/`、`assets/uncompressed/`、`assets/islands/raw/`、`assets/brand/raw/` 与 `assets/brand/references/`）。只改页面内容时不必全量下载，用稀疏检出几秒即可完成：
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/xinxinrana/EvanSpeak.git
+cd EvanSpeak
+git sparse-checkout set --no-cone '/*' '!/assets/uncompressed' '!/assets/islands/raw' '!/VI' '!/assets/brand/raw' '!/assets/brand/references'
+```
 
 ## 设计文档
 
