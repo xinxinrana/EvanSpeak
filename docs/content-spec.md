@@ -92,6 +92,8 @@ index.html                                ← 首页（右栏直接列出各主�
 
 ## 加一篇新文章时要同步的四处
 
+使用[本地编辑工作台](../tools/editor/README.md)新建并应用文章时，以下列表和篇数会自动同步。手动新建 HTML 页面时，按下面的路径更新。
+
 1. 新建 `topics/<主题>/notes/<slug>/index.html`。
 2. 在 `topics/<主题>/notes/index.html` 的 `.note-list` 里加一张卡片（按既定顺序插入）。
 3. 在 `topics/<主题>/index.html` 的「相关笔记」卡片里更新篇数。

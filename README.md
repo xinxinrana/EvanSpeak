@@ -33,6 +33,7 @@ Evan Speak 是一个地图式数字花园站点，用于承载个人主页和长
 ├── paths/                     # 阅读路径占位页
 ├── explore/                   # 继续探索占位页
 ├── scripts/                   # 本地资源生成脚本
+├── tools/editor/              # 本地网页编辑工作台
 └── topics/                    # 主题页面与主题下的笔记/路径
 ```
 
@@ -47,6 +48,14 @@ python -m http.server 8899 --bind 127.0.0.1
 然后访问 http://127.0.0.1:8899/ 。
 
 **要用本地服务，不能直接双击打开 `index.html`。** 站内页面在子目录里（如 `topics/ai/notes/xxx/`），`file://` 协议不会自动解析子目录下的 `index.html`，会落到浏览器的目录列表页。
+
+## 本地编辑工作台
+
+```bash
+node tools/editor/server.mjs
+```
+
+浏览器访问 http://127.0.0.1:8898/ ，编辑文章、保存本机草稿，并在预览确认后应用到本地站点。使用说明见 [编辑工作台](tools/editor/README.md)。
 
 ## 克隆
 

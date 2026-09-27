@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>编辑工作台 · Evan Speak</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand"><span class="brand-mark">E</span><div><strong>Evan Speak</strong><small>本地编辑工作台</small></div></div>
+        <button id="newButton" class="new-button" type="button">＋ 新建文章</button>
+        <label class="search-wrap"><span>查找内容</span><input id="search" type="search" placeholder="标题或主题" /></label>
+        <div class="list-head"><span>文章</span><span id="totalCount"></span></div>
+        <div id="articleList" class="article-list"></div>
+        <div class="sidebar-foot">草稿仅存于本机。应用到站点后，再由你决定何时推送上线。</div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div><div class="eyebrow">CONTENT WORKSPACE</div><h1 id="workspaceTitle">选择一篇文章</h1></div>
+          <div class="top-actions"><span id="statusBadge" class="badge">未选择</span><button id="siteButton" class="ghost" type="button" disabled>打开站点页面 ↗</button></div>
+        </header>
+
+        <div id="emptyState" class="empty-state"><span class="empty-symbol">✦</span><h2>从一篇文章开始</h2><p>选择左侧文章进行精修，或新建一篇草稿。</p></div>
+
+        <div id="editorScreen" class="editor-screen hidden">
+          <section class="form-strip">
+            <div class="form-grid">
+              <label>主题<select id="topic"><option value="product">产品</option><option value="ai">AI</option><option value="business">商业</option><option value="system">自我系统</option><option value="observe">观察</option></select></label>
+              <label>短链接<input id="slug" placeholder="my-article" spellcheck="false" /></label>
+              <label>分类<input id="category" placeholder="例如：认知方法" /></label>
+              <label>内容状态<select id="state"><option>萌芽</option><option>成型</option><option>修订中</option><option>长期有效</option><option>待整理</option></select></label>
+            </div>
+            <label class="wide">文章标题<input id="title" placeholder="写下文章标题" /></label>
+            <label class="wide">摘要<textarea id="summary" rows="2" placeholder="用一两句话介绍文章"></textarea></label>
+            <label class="wide">标签 <span class="help">用逗号分隔</span><input id="tags" placeholder="标签一, 标签二" /></label>
+          </section>
+
+          <div class="section-top"><div><h2>正文</h2><p id="modeNote">像编辑文档一样修改，右侧查看实际页面。</p></div><div class="view-switch"><button id="visualTab" type="button" class="selected">可视编辑</button><button id="sourceTab" type="button">HTML 源码</button></div></div>
+          <div class="content-grid">
+            <div class="edit-panel">
+              <div id="toolbar" class="toolbar">
+                <button data-command="bold" title="加重 (⌘/Ctrl+B)"><strong>B</strong></button>
+                <button data-command="italic" title="斜体"><em>I</em></button>
+                <span class="divider"></span>
+                <button data-block="p" title="正文">正文</button>
+                <button data-block="h2" title="二级标题">H2</button>
+                <button data-block="h3" title="三级标题">H3</button>
+                <button data-block="blockquote" title="引用">❝</button>
+                <span class="divider"></span>
+                <button data-command="insertUnorderedList" title="无序列表">• 列表</button>
+                <button data-command="insertOrderedList" title="有序列表">1. 列表</button>
+                <button id="linkButton" title="插入链接">链接</button>
+                <button id="imageButton" title="上传图片">图片</button>
+                <button id="hrButton" title="分隔线">—</button>
+                <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+              </div>
+              <div id="visualEditor" class="visual-editor body" contenteditable="true" spellcheck="true"></div>
+              <textarea id="sourceEditor" class="source-editor hidden" spellcheck="false" aria-label="HTML 源码"></textarea>
+            </div>
+            <div class="preview-panel"><div class="preview-head"><span>页面预览</span><button id="refreshPreview" type="button">刷新预览 ↻</button></div><iframe id="preview" title="文章页面预览"></iframe></div>
+          </div>
+
+          <section id="relatedSection" class="related-section">
+            <div class="section-top"><div><h2>文章末尾信息</h2><p>在这里修改“这篇文章回应的问题”“关联阅读”等内容；链接地址可在 HTML 源码中调整。</p></div></div>
+            <div id="relatedEditor" class="related-editor" contenteditable="true" spellcheck="true"></div>
+            <textarea id="relatedSourceEditor" class="source-editor related-source hidden" spellcheck="false" aria-label="文章末尾信息 HTML 源码"></textarea>
+          </section>
+
+          <footer class="actionbar"><div id="message" role="status">修改仅在点击“保存草稿”后写入本机。</div><div class="action-buttons"><button id="unpublishButton" type="button" class="danger">下架文章</button><button id="saveButton" type="button" class="secondary">保存草稿</button><button id="applyButton" type="button" class="primary">应用到站点</button><button id="publishButton" type="button" class="publish">检查并推送</button></div></footer>
+        </div>
+      </main>
+    </div>
+    <dialog id="publishDialog"><div class="dialog-head"><div><div class="eyebrow">PUBLISH REVIEW</div><h2>待发布变更</h2></div><button id="closeDialog" type="button" aria-label="关闭">×</button></div><p>确认以下本地内容后，再提交并推送到 GitHub Pages 使用的 main 分支。</p><pre id="changeList"></pre><div class="dialog-actions"><button id="cancelPublish" type="button" class="secondary">再检查一下</button><button id="confirmPublish" type="button" class="primary">确认提交并推送</button></div></dialog>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
