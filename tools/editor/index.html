@@ -12,15 +12,16 @@
         <div class="brand"><span class="brand-mark">E</span><div><strong>Evan Speak</strong><small>本地编辑工作台</small></div></div>
         <button id="newButton" class="new-button" type="button">＋ 新建文章</button>
         <label class="search-wrap"><span>查找内容</span><input id="search" type="search" placeholder="标题或主题" /></label>
+        <select id="visibilityFilter" class="visibility-filter" aria-label="筛选站点可见性"><option value="all">全部文章</option><option value="visible">站点可见</option><option value="hidden">站点隐藏</option></select>
         <div class="list-head"><span>文章</span><span id="totalCount"></span></div>
         <div id="articleList" class="article-list"></div>
-        <div class="sidebar-foot">草稿仅存于本机。应用到站点后，再由你决定何时推送上线。</div>
+        <div class="sidebar-foot">草稿仅存于本机。应用内容与站点可见性分别控制；推送由你决定。</div>
       </aside>
 
       <main class="workspace">
         <header class="topbar">
           <div><div class="eyebrow">CONTENT WORKSPACE</div><h1 id="workspaceTitle">选择一篇文章</h1></div>
-          <div class="top-actions"><span id="statusBadge" class="badge">未选择</span><button id="siteButton" class="ghost" type="button" disabled>打开站点页面 ↗</button></div>
+          <div class="top-actions"><span id="statusBadge" class="badge">未选择</span><span id="draftBadge" class="badge draft-badge hidden">有草稿</span><span id="pendingBadge" class="badge pending-badge hidden">待同步</span><button id="siteButton" class="ghost" type="button" disabled>打开站点页面 ↗</button></div>
         </header>
 
         <div id="emptyState" class="empty-state"><span class="empty-symbol">✦</span><h2>从一篇文章开始</h2><p>选择左侧文章进行精修，或新建一篇草稿。</p></div>
@@ -36,6 +37,7 @@
             <label class="wide">文章标题<input id="title" placeholder="写下文章标题" /></label>
             <label class="wide">摘要<textarea id="summary" rows="2" placeholder="用一两句话介绍文章"></textarea></label>
             <label class="wide">标签 <span class="help">用逗号分隔</span><input id="tags" placeholder="标签一, 标签二" /></label>
+            <div class="visibility-card"><div><strong>站点可见</strong><p id="visibilityHint">可见性独立于编辑内容；切换先改本地站点，推送后线上生效。</p></div><label class="visibility-switch"><input id="visibilityToggle" type="checkbox" aria-label="站点可见" /><span class="switch-track"></span></label></div>
           </section>
 
           <div class="section-top"><div><h2>正文</h2><p id="modeNote">像编辑文档一样修改，右侧查看实际页面。</p></div><div class="view-switch"><button id="visualTab" type="button" class="selected">可视编辑</button><button id="sourceTab" type="button">HTML 源码</button></div></div>
@@ -69,7 +71,7 @@
             <textarea id="relatedSourceEditor" class="source-editor related-source hidden" spellcheck="false" aria-label="文章末尾信息 HTML 源码"></textarea>
           </section>
 
-          <footer class="actionbar"><div id="message" role="status">修改仅在点击“保存草稿”后写入本机。</div><div class="action-buttons"><button id="unpublishButton" type="button" class="danger">下架文章</button><button id="saveButton" type="button" class="secondary">保存草稿</button><button id="applyButton" type="button" class="primary">应用到站点</button><button id="publishButton" type="button" class="publish">检查并推送</button></div></footer>
+          <footer class="actionbar"><div id="message" role="status">修改仅在点击“保存草稿”后写入本机。</div><div class="action-buttons"><button id="saveButton" type="button" class="secondary">保存草稿</button><button id="applyButton" type="button" class="primary">应用内容</button><button id="publishButton" type="button" class="publish">检查并推送</button></div></footer>
         </div>
       </main>
     </div>

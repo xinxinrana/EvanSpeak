@@ -32,17 +32,27 @@ async function refreshList() {
 
 function renderList() {
   const q = $('search').value.trim().toLowerCase();
-  const visible = articles.filter((item) => `${item.title} ${topicNames[item.topic]} ${item.slug}`.toLowerCase().includes(q));
+  const filter = $('visibilityFilter').value;
+  const visible = articles.filter((item) => `${item.title} ${topicNames[item.topic]} ${item.slug}`.toLowerCase().includes(q) && (filter === 'all' || item.visible === (filter === 'visible')));
   $('totalCount').textContent = `${articles.length} 篇`;
   $('articleList').replaceChildren();
   for (const item of visible) {
     const row = document.createElement('button');
     row.type = 'button';
     row.className = `article-row${currentKey() === `${item.topic}/${item.slug}` ? ' active' : ''}`;
-    row.innerHTML = `<strong>${escapeHtml(item.title || item.slug)}</strong><small><span>${topicNames[item.topic]}</span><span>·</span><span>${item.published ? '站点中' : '未发布'}</span>${item.draft ? '<span class="draft-dot">● 草稿</span>' : ''}</small>`;
+    row.innerHTML = `<strong>${escapeHtml(item.title || item.slug)}</strong><small><span>${topicNames[item.topic]}</span><span>·</span><span>${item.visible ? '可见' : '隐藏'}</span>${item.draft ? '<span class="draft-dot">● 草稿</span>' : ''}${item.pending ? '<span class="pending-dot">● 待同步</span>' : ''}</small>`;
     row.addEventListener('click', () => openArticle(item.topic, item.slug));
     $('articleList').append(row);
   }
+}
+
+function updateStatus() {
+  $('statusBadge').textContent = current?.visible ? '本地可见' : '本地隐藏';
+  $('draftBadge').classList.toggle('hidden', !current?.draft);
+  $('pendingBadge').classList.toggle('hidden', !current?.pending);
+  $('visibilityToggle').checked = !!current?.visible;
+  $('visibilityHint').textContent = current?.visible ? '本地站点可访问；推送后线上同步。' : '本地站点不展示；文章内容仍可继续编辑。';
+  $('siteButton').disabled = !current?.visible;
 }
 
 function readForm() {
@@ -78,13 +88,11 @@ function fillForm(item) {
   $('relatedEditor').innerHTML = item.related || '';
   $('relatedSourceEditor').value = item.related || '';
   $('relatedSection').classList.toggle('hidden', !!item.special);
-  $('topic').disabled = !!item.published || !!item.draft;
-  $('slug').disabled = !!item.published || !!item.draft;
+  $('topic').disabled = !!item.baseHash || !!item.draft;
+  $('slug').disabled = !!item.baseHash || !!item.draft;
   for (const id of ['title', 'summary', 'category', 'state', 'tags']) $(id).disabled = !!item.special;
-  $('unpublishButton').disabled = !item.published;
-  $('siteButton').disabled = !item.published;
   $('workspaceTitle').textContent = item.title || '新文章';
-  $('statusBadge').textContent = item.draft ? '本地草稿' : item.published ? '站点中' : '新文章';
+  updateStatus();
   $('emptyState').classList.add('hidden');
   $('editorScreen').classList.remove('hidden');
   $('visualTab').disabled = !!item.special;
@@ -168,7 +176,7 @@ async function saveDraft() {
     relatedDirty = false;
     $('topic').disabled = true;
     $('slug').disabled = true;
-    $('statusBadge').textContent = '本地草稿';
+    updateStatus();
     await refreshList();
     updatePreview();
     message('草稿已保存在本机，站点内容尚未改变。');
@@ -178,25 +186,27 @@ async function saveDraft() {
 
 async function apply() {
   if (!(await saveDraft())) return;
-  if (!confirm('将草稿应用到本地站点，并同步首页与笔记列表？此操作不会推送到线上。')) return;
+  if (!confirm('将草稿内容应用到本地文章？可见性不变，不会自动推送线上。')) return;
   try {
     await api('apply', { method: 'POST', body: JSON.stringify({ topic: current.topic, slug: current.slug }) });
     await refreshList();
     fillForm(await api(`article?topic=${current.topic}&slug=${current.slug}`));
-    message('已应用到本地站点并同步列表。线上发布仍由你决定。');
+    message(current.visible ? '内容已应用到本地站点，列表已同步。' : '内容已应用到隐藏文章源，站点仍不可见。');
   } catch (error) { message(error.message, true); }
 }
 
-async function unpublish() {
-  if (!current?.published) return;
-  if (dirty && !(await saveDraft())) return;
-  if (!confirm('将这篇文章从本地站点下架并从列表移除？页面会保留为本地草稿；不会自动推送线上。')) return;
+async function changeVisibility() {
+  const visible = $('visibilityToggle').checked;
+  if (!current) return;
   try {
-    await api('unpublish', { method: 'POST', body: JSON.stringify({ topic: current.topic, slug: current.slug }) });
+    await api('visibility', { method: 'POST', body: JSON.stringify({ topic: current.topic, slug: current.slug, visible }) });
+    current.visible = visible;
+    current.published = visible;
     await refreshList();
-    fillForm(await api(`article?topic=${current.topic}&slug=${current.slug}`));
-    message('文章已从本地站点下架，草稿仍可继续编辑。');
-  } catch (error) { message(error.message, true); }
+    current.pending = !!articles.find((item) => item.topic === current.topic && item.slug === current.slug)?.pending;
+    updateStatus();
+    message(visible ? '本地站点已显示这篇文章，推送后线上同步。' : '本地站点已隐藏这篇文章，草稿不受影响。');
+  } catch (error) { $('visibilityToggle').checked = !!current.visible; message(error.message, true); }
 }
 
 async function showPublish() {
@@ -214,6 +224,8 @@ async function publish() {
   try {
     await api('publish', { method: 'POST', body: '{}' });
     $('publishDialog').close();
+    if (current) { current.pending = false; updateStatus(); }
+    await refreshList();
     message('内容已提交并推送到 main。');
   } catch (error) { message(`推送未完成：${error.message}`, true); }
   finally { $('confirmPublish').disabled = false; $('confirmPublish').textContent = '确认提交并推送'; }
@@ -238,6 +250,7 @@ async function uploadImage(file) {
 }
 
 $('search').addEventListener('input', renderList);
+$('visibilityFilter').addEventListener('change', renderList);
 $('newButton').addEventListener('click', () => {
   if (dirty && !confirm('当前修改尚未保存，确定新建文章吗？')) return;
   fillForm({ topic: 'ai', slug: '', title: '', summary: '', category: '', state: '萌芽', tags: [], body: '<p></p>', related: '<div><h2>这篇文章回应的问题</h2><p></p></div><div><h2>关联阅读</h2><p></p></div>', rawHtml: '', published: false, draft: false, special: false });
@@ -250,12 +263,12 @@ $('sourceTab').addEventListener('click', () => switchMode(true));
 $('refreshPreview').addEventListener('click', updatePreview);
 $('saveButton').addEventListener('click', saveDraft);
 $('applyButton').addEventListener('click', apply);
-$('unpublishButton').addEventListener('click', unpublish);
+$('visibilityToggle').addEventListener('change', changeVisibility);
 $('publishButton').addEventListener('click', showPublish);
 $('confirmPublish').addEventListener('click', publish);
 $('cancelPublish').addEventListener('click', () => $('publishDialog').close());
 $('closeDialog').addEventListener('click', () => $('publishDialog').close());
-$('siteButton').addEventListener('click', () => { if (current?.published) window.open(`/site/topics/${current.topic}/notes/${current.slug}/`, '_blank'); });
+$('siteButton').addEventListener('click', () => { if (current?.visible) window.open(`/site/topics/${current.topic}/notes/${current.slug}/`, '_blank'); });
 document.querySelectorAll('[data-command]').forEach((button) => button.addEventListener('click', () => command(button.dataset.command)));
 document.querySelectorAll('[data-block]').forEach((button) => button.addEventListener('click', () => command('formatBlock', `<${button.dataset.block}>`)));
 document.querySelectorAll('#toolbar button').forEach((button) => button.addEventListener('mousedown', (event) => event.preventDefault()));

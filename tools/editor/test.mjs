@@ -74,6 +74,19 @@ try {
   assert.match(await file('notes/index.html'), /一个热可颂的清晨/);
   assert.match(await file('index.html'), /一个热可颂的清晨/);
   assert.match(await file('topics/observe/index.html'), /1 篇/);
+  const approved = await file('topics/observe/notes/a-warm-croissant/index.html');
+  await api('draft', { ...(await api('article?topic=observe&slug=a-warm-croissant')), summary: '尚未应用的草稿摘要。' });
+  await api('visibility', { topic: 'observe', slug: 'a-warm-croissant', visible: false });
+  assert.equal((await api('article?topic=observe&slug=a-warm-croissant')).visible, false);
+  assert.equal(await file('content/hidden/observe/a-warm-croissant/article.html.txt'), approved);
+  assert.match(await file('.local-editor/drafts/observe/a-warm-croissant.json'), /尚未应用的草稿摘要/);
+  await assert.rejects(() => stat(path.join(fixture, 'topics/observe/notes/a-warm-croissant/index.html')));
+  assert.doesNotMatch(await file('notes/index.html'), /topics\/observe\/notes\/a-warm-croissant\//);
+  await api('visibility', { topic: 'observe', slug: 'a-warm-croissant', visible: true });
+  assert.equal(await file('topics/observe/notes/a-warm-croissant/index.html'), approved);
+  assert.match(await file('.local-editor/drafts/observe/a-warm-croissant.json'), /尚未应用的草稿摘要/);
+  await api('apply', { topic: 'observe', slug: 'a-warm-croissant' });
+  assert.match(await file('topics/observe/notes/a-warm-croissant/index.html'), /尚未应用的草稿摘要/);
   const changes = await api('changes');
   assert.equal(changes.branch, 'main');
   assert.ok(changes.files.some((line) => line.includes('topics/observe/notes/index.html')));
@@ -124,23 +137,37 @@ try {
   fresh.body = `<p>正文。</p><img src="${image.src}" alt="示意图" />`;
   await api('draft', fresh);
   await api('apply', { topic: 'observe', slug: 'new-note' });
+  assert.match(await file('content/hidden/observe/new-note/article.html.txt'), /一篇新笔记/);
+  await assert.rejects(() => stat(path.join(fixture, 'topics/observe/notes/new-note/index.html')));
+  assert.doesNotMatch(await file('index.html'), /topics\/observe\/notes\/new-note\//);
+  assert.match(await file('topics/observe/index.html'), /1 篇/);
+  assert.equal((await api('article?topic=observe&slug=new-note')).visible, false);
+  await api('visibility', { topic: 'observe', slug: 'new-note', visible: true });
   assert.match(await file('topics/observe/notes/new-note/index.html'), /一篇新笔记/);
   await stat(path.join(fixture, 'topics/observe/notes/new-note', image.src));
   assert.match(await file('topics/observe/index.html'), /2 篇/);
   assert.match(await file('index.html'), /topics\/observe\/notes\/new-note\//);
 
-  await api('unpublish', { topic: 'observe', slug: 'new-note' });
+  await api('visibility', { topic: 'observe', slug: 'new-note', visible: false });
   await assert.rejects(() => stat(path.join(fixture, 'topics/observe/notes/new-note/index.html')));
   await assert.rejects(() => stat(path.join(fixture, 'topics/observe/notes/new-note', image.src)));
-  await stat(path.join(fixture, '.local-editor/images/observe/new-note', path.basename(image.src)));
-  assert.match(await file('.local-editor/drafts/observe/new-note.json'), /一篇新笔记/);
+  await stat(path.join(fixture, 'content/hidden/observe/new-note', image.src));
+  assert.match(await file('content/hidden/observe/new-note/article.html.txt'), /一篇新笔记/);
+  await assert.rejects(() => stat(path.join(fixture, '.local-editor/drafts/observe/new-note.json')));
+  assert.equal((await fetch(`http://127.0.0.1:${port}/site/topics/observe/notes/new-note/${image.src}`)).status, 200);
+  assert.ok((await api('articles')).some((item) => item.slug === 'new-note' && item.visible === false && item.draft === false));
   assert.doesNotMatch(await file('notes/index.html'), /topics\/observe\/notes\/new-note\//);
   assert.doesNotMatch(await file('index.html'), /topics\/observe\/notes\/new-note\//);
   assert.match(await file('topics/observe/index.html'), /1 篇/);
 
-  const foreign = await fetch(`http://127.0.0.1:${port}/api/unpublish`, { method: 'POST', headers: { origin: 'https://example.com', 'content-type': 'application/json' }, body: JSON.stringify({ topic: 'observe', slug: 'a-warm-croissant' }) });
+  await api('draft', { ...fresh, slug: 'legacy-note', title: '旧下架草稿', baseHash: 'old-public-page-hash' });
+  await api('apply', { topic: 'observe', slug: 'legacy-note' });
+  assert.match(await file('content/hidden/observe/legacy-note/article.html.txt'), /旧下架草稿/);
+  assert.doesNotMatch(await file('index.html'), /topics\/observe\/notes\/legacy-note\//);
+
+  const foreign = await fetch(`http://127.0.0.1:${port}/api/visibility`, { method: 'POST', headers: { origin: 'https://example.com', 'content-type': 'application/json' }, body: JSON.stringify({ topic: 'observe', slug: 'a-warm-croissant', visible: false }) });
   assert.equal(foreign.status, 403);
-  console.log('编辑工作台测试通过：草稿、修改、新建、图片、特殊页面、下架、列表同步、本地 Git 推送、外部修改冲突、本机来源限制。');
+  console.log('编辑工作台测试通过：草稿、内容应用、可见性、新建、图片、特殊页面、列表同步、本地 Git 推送、外部修改冲突、本机来源限制。');
 } finally {
   server.kill();
 }

@@ -11,6 +11,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const editorRoot = path.join(root, 'tools/editor');
 const draftRoot = path.join(root, '.local-editor/drafts');
 const draftImagesRoot = path.join(root, '.local-editor/images');
+const hiddenRoot = path.join(root, 'content/hidden');
 const pendingFile = path.join(root, '.local-editor/pending.json');
 const publishCommitFile = path.join(root, '.local-editor/publish-commit.txt');
 const run = promisify(execFile);
@@ -24,6 +25,7 @@ const decode = (value) => String(value ?? '').replace(/&(#x[\da-f]+|#\d+|amp|lt|
 });
 const plain = (html) => decode(String(html ?? '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim());
 const articlePath = (topic, slug) => path.join(root, 'topics', topic, 'notes', slug, 'index.html');
+const hiddenPath = (topic, slug) => path.join(hiddenRoot, topic, slug, 'article.html.txt');
 const draftPath = (topic, slug) => path.join(draftRoot, topic, `${slug}.json`);
 const validKey = (topic, slug) => Object.hasOwn(topics, topic) && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
 const read = (file) => readFile(file, 'utf8');
@@ -39,6 +41,7 @@ async function pendingPaths() {
 async function markPending(topic, slug) {
   const paths = [
     `topics/${topic}/notes/${slug}`,
+    `content/hidden/${topic}/${slug}`,
     `topics/${topic}/notes/index.html`,
     `topics/${topic}/index.html`,
     'notes/index.html', 'index.html',
@@ -76,7 +79,9 @@ async function publishChanges() {
   if (staged.some((name) => !allowed(name))) throw new Error('暂存区还有其他文件。请先处理这些变更，再从工作台推送');
   const current = await changes();
   if (!current.files.length) throw new Error('待发布文件没有 Git 变更');
-  await git('add', '-A', '--', ...pending);
+  const changedPaths = [];
+  for (const entry of pending) if (await git('status', '--short', '--', entry)) changedPaths.push(entry);
+  await git('add', '-A', '--', ...changedPaths);
   await git('commit', '-m', 'Update Evan Speak content');
   await writeFile(publishCommitFile, `${await git('rev-parse', 'HEAD')}\n`);
   await git('push', 'origin', 'main');
@@ -169,6 +174,9 @@ function validate(item) {
 
 async function listArticles() {
   const result = [];
+  const pending = await pendingPaths();
+  const status = pending.length ? await git('status', '--short', '--untracked-files=all', '--', ...pending) : '';
+  const hasPending = (topic, slug) => pending.some((entry) => entry === `topics/${topic}/notes/${slug}` || entry === `content/hidden/${topic}/${slug}`) && (status.includes(`topics/${topic}/notes/${slug}/`) || status.includes(`content/hidden/${topic}/${slug}/`));
   for (const topic of Object.keys(topics)) {
     const folder = path.join(root, 'topics', topic, 'notes');
     const entries = await readdir(folder, { withFileTypes: true });
@@ -178,7 +186,18 @@ async function listArticles() {
       if (!html) continue;
       const draft = await readIf(draftPath(topic, entry.name));
       const item = draft ? JSON.parse(draft) : extract(html, topic, entry.name);
-      result.push({ topic, slug: entry.name, title: item.title, summary: item.summary, special: item.special, published: true, draft: existsSync(draftPath(topic, entry.name)) });
+      result.push({ topic, slug: entry.name, title: item.title, summary: item.summary, special: item.special, visible: true, published: true, draft: !!draft, pending: hasPending(topic, entry.name) });
+    }
+    const hiddenFolder = path.join(hiddenRoot, topic);
+    if (existsSync(hiddenFolder)) {
+      for (const entry of await readdir(hiddenFolder, { withFileTypes: true })) {
+        if (!entry.isDirectory() || !validKey(topic, entry.name) || result.some((item) => item.topic === topic && item.slug === entry.name)) continue;
+        const html = await readIf(hiddenPath(topic, entry.name));
+        if (!html) continue;
+        const draft = await readIf(draftPath(topic, entry.name));
+        const item = draft ? JSON.parse(draft) : extract(html, topic, entry.name);
+        result.push({ topic, slug: entry.name, title: item.title, summary: item.summary, special: item.special, visible: false, published: false, draft: !!draft, pending: hasPending(topic, entry.name) });
+      }
     }
     const draftFolder = path.join(draftRoot, topic);
     if (existsSync(draftFolder)) {
@@ -188,7 +207,7 @@ async function listArticles() {
         if (result.some((item) => item.topic === topic && item.slug === slug)) continue;
         try {
           const item = JSON.parse(await read(path.join(draftFolder, name)));
-          result.push({ topic, slug, title: item.title, summary: item.summary, special: !!item.special, published: false, draft: true });
+          result.push({ topic, slug, title: item.title, summary: item.summary, special: !!item.special, visible: false, published: false, draft: true, pending: false });
         } catch { /* Ignore an incomplete local draft. */ }
       }
     }
@@ -198,12 +217,17 @@ async function listArticles() {
 
 async function loadArticle(topic, slug) {
   if (!validKey(topic, slug)) throw new Error('文章路径无效');
-  const source = await readIf(articlePath(topic, slug));
+  const publicSource = await readIf(articlePath(topic, slug));
+  const hiddenSource = publicSource ? null : await readIf(hiddenPath(topic, slug));
+  const source = publicSource || hiddenSource;
   const draft = await readIf(draftPath(topic, slug));
   const item = draft ? JSON.parse(draft) : source ? extract(source, topic, slug) : null;
   if (!item) throw new Error('找不到文章');
   if (!item.special && item.related === undefined && source) item.related = extract(source, topic, slug).related;
-  return { ...item, baseHash: item.baseHash ?? (source ? digest(source) : null), published: !!source, draft: !!draft };
+  const pending = await pendingPaths();
+  const articlePaths = [`topics/${topic}/notes/${slug}`, `content/hidden/${topic}/${slug}`];
+  const status = pending.some((entry) => articlePaths.includes(entry)) ? await git('status', '--short', '--', ...articlePaths) : '';
+  return { ...item, baseHash: item.baseHash ?? (source ? digest(source) : null), visible: !!publicSource, published: !!publicSource, draft: !!draft, pending: !!status };
 }
 
 function card(item, global) {
@@ -277,14 +301,19 @@ async function applyDraft(topic, slug) {
   if (!draft) throw new Error('请先保存草稿');
   const item = JSON.parse(draft);
   validate(item);
-  const file = articlePath(topic, slug);
-  const source = await readIf(file);
-  if (!!source !== !!item.baseHash) throw new Error('站点文章状态已变化。请重新打开文章确认后再应用。');
+  const publicSource = await readIf(articlePath(topic, slug));
+  const hiddenSource = await readIf(hiddenPath(topic, slug));
+  if (publicSource && hiddenSource) throw new Error('文章同时存在于公开区和隐藏区，请先检查文件');
+  const source = publicSource || hiddenSource;
+  if (source && !item.baseHash) throw new Error('站点文章状态已变化。请重新打开文章确认后再应用。');
   if (source && item.baseHash && digest(source) !== item.baseHash) throw new Error('站点页面已被其他方式修改。请检查并重新保存草稿后再应用。');
   const html = item.special ? item.rawHtml : renderStandard(source, item);
   const final = extract(html, topic, slug);
   if (!final.title) throw new Error('成品页面缺少标题');
-  const changes = await updatedIndexes({ ...item, title: final.title, summary: final.summary || item.summary, category: item.special ? final.category : item.category, state: item.special ? final.state : item.state }, false);
+  const file = publicSource ? articlePath(topic, slug) : hiddenPath(topic, slug);
+  const changes = publicSource
+    ? await updatedIndexes({ ...item, title: final.title, summary: final.summary || item.summary, category: item.special ? final.category : item.category, state: item.special ? final.state : item.state }, false)
+    : [];
   await mkdir(path.dirname(file), { recursive: true });
   const localImages = path.join(draftImagesRoot, topic, slug);
   if (existsSync(localImages)) await cp(localImages, path.join(path.dirname(file), 'images'), { recursive: true });
@@ -293,23 +322,30 @@ async function applyDraft(topic, slug) {
   await markPending(topic, slug);
 }
 
-async function unpublish(topic, slug) {
+async function setVisibility(topic, slug, visible) {
   if (!validKey(topic, slug)) throw new Error('文章路径无效');
-  if (await readIf(publishCommitFile)) throw new Error('已有提交等待推送。请先完成推送，再下架其他文章');
-  const file = articlePath(topic, slug);
-  const html = await readIf(file);
-  if (!html) throw new Error('文章未发布');
+  if (typeof visible !== 'boolean') throw new Error('可见性必须为开或关');
+  if (await readIf(publishCommitFile)) throw new Error('已有提交等待推送。请先完成推送，再调整可见性');
+  const publicFile = articlePath(topic, slug);
+  const hiddenFile = hiddenPath(topic, slug);
+  const publicSource = await readIf(publicFile);
+  const hiddenSource = await readIf(hiddenFile);
+  if (!publicSource && !hiddenSource) throw new Error('请先保存草稿并应用内容，再打开站点可见性');
+  if (publicSource && hiddenSource) throw new Error('文章同时存在于公开区和隐藏区，请先检查文件');
+  if (!!publicSource === visible) return { visible };
+  const html = publicSource || hiddenSource;
   const item = extract(html, topic, slug);
-  const changes = await updatedIndexes(item, true);
-  if (!existsSync(draftPath(topic, slug))) await saveDraft(item);
-  const siteImages = path.join(path.dirname(file), 'images');
-  if (existsSync(siteImages)) {
-    await cp(siteImages, path.join(draftImagesRoot, topic, slug), { recursive: true });
-    await rm(siteImages, { recursive: true });
-  }
-  await Promise.all(changes.map(([target, content]) => writeFile(target, content)));
-  await unlink(file);
+  const changes = await updatedIndexes(item, !visible);
+  const from = publicSource ? publicFile : hiddenFile;
+  const to = visible ? publicFile : hiddenFile;
+  await mkdir(path.dirname(to), { recursive: true });
+  const sourceImages = path.join(path.dirname(from), 'images');
+  if (existsSync(sourceImages)) await cp(sourceImages, path.join(path.dirname(to), 'images'), { recursive: true });
+  await Promise.all([[to, html], ...changes].map(([target, content]) => writeFile(target, content)));
+  await unlink(from);
+  if (existsSync(sourceImages)) await rm(sourceImages, { recursive: true });
   await markPending(topic, slug);
+  return { visible };
 }
 
 function response(res, status, data, type = 'application/json; charset=utf-8') {
@@ -345,7 +381,8 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === '/api/article' && req.method === 'GET') return response(res, 200, await loadArticle(url.searchParams.get('topic'), url.searchParams.get('slug')));
     if (url.pathname === '/api/draft' && req.method === 'POST') { await saveDraft(await requestBody(req)); return response(res, 200, { ok: true }); }
     if (url.pathname === '/api/apply' && req.method === 'POST') { const { topic, slug } = await requestBody(req); await applyDraft(topic, slug); return response(res, 200, { ok: true }); }
-    if (url.pathname === '/api/unpublish' && req.method === 'POST') { const { topic, slug } = await requestBody(req); await unpublish(topic, slug); return response(res, 200, { ok: true }); }
+    if (url.pathname === '/api/visibility' && req.method === 'POST') { const { topic, slug, visible } = await requestBody(req); return response(res, 200, await setVisibility(topic, slug, visible)); }
+    if (url.pathname === '/api/unpublish' && req.method === 'POST') { const { topic, slug } = await requestBody(req); return response(res, 200, await setVisibility(topic, slug, false)); }
     if (url.pathname === '/api/publish' && req.method === 'POST') return response(res, 200, await publishChanges());
     if (url.pathname === '/api/image' && req.method === 'POST') {
       const { topic, slug, name, data } = await requestBody(req);
@@ -365,7 +402,11 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname.startsWith('/site/')) {
       const relative = decodeURIComponent(url.pathname.slice(6)) || 'index.html';
       const image = relative.match(/^topics\/(product|ai|business|system|observe)\/notes\/([a-z0-9-]+)\/images\/([a-zA-Z0-9._-]+)$/);
-      if (image && !existsSync(path.join(root, relative))) return await serveFile(res, draftImagesRoot, `${image[1]}/${image[2]}/${image[3]}`);
+      if (image && !existsSync(path.join(root, relative))) {
+        const localDraftImage = path.join(draftImagesRoot, image[1], image[2], image[3]);
+        if (existsSync(localDraftImage)) return await serveFile(res, draftImagesRoot, `${image[1]}/${image[2]}/${image[3]}`);
+        return await serveFile(res, hiddenRoot, `${image[1]}/${image[2]}/images/${image[3]}`);
+      }
       return await serveFile(res, root, relative);
     }
     return await serveFile(res, editorRoot, decodeURIComponent(url.pathname.slice(1)));
