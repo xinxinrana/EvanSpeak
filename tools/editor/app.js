@@ -1,282 +1,217 @@
 const $ = (id) => document.getElementById(id);
-const topicNames = { product: '产品', ai: 'AI', business: '商业', system: '自我系统', observe: '观察' };
-let articles = [];
-let current = null;
-let sourceMode = false;
+let page = null;
 let dirty = false;
-let relatedDirty = false;
-let previewTimer;
+let sourceMode = false;
+let lastRange = null;
 
-async function api(route, options = {}) {
-  const response = await fetch(`/api/${route}`, { ...options, headers: { 'content-type': 'application/json', ...(options.headers || {}) } });
+async function api(route, body) {
+  const options = body === undefined ? undefined : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) };
+  const response = await fetch('/api/' + route, options);
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || '操作失败');
   return data;
 }
 
-function message(text, error = false) {
-  $('message').textContent = text;
+function message(value, error = false) {
+  $('message').textContent = value;
   $('message').classList.toggle('error', error);
 }
 
-function escapeHtml(text) {
-  return String(text ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+function sitePath(value) {
+  const url = new URL(value.trim(), location.href);
+  if (!['http:', 'https:'].includes(url.protocol)) throw new Error('请粘贴网页 URL');
+  let relative = decodeURIComponent(url.pathname).replace(/^\/+/, '');
+  if (relative.startsWith('site/')) relative = relative.slice(5);
+  if (relative.startsWith('EvanSpeak/')) relative = relative.slice('EvanSpeak/'.length);
+  if (!relative || relative.endsWith('/')) relative += 'index.html';
+  if (!relative.endsWith('.html')) relative += '/index.html';
+  return relative;
 }
 
-function currentKey() { return current ? `${current.topic}/${current.slug}` : ''; }
-
-async function refreshList() {
-  articles = await api('articles');
-  renderList();
+function markDirty() {
+  dirty = true;
+  $('dirtyBadge').hidden = false;
+  message('有尚未更新到 HTML 的修改。');
 }
 
-function renderList() {
-  const q = $('search').value.trim().toLowerCase();
-  const filter = $('visibilityFilter').value;
-  const visible = articles.filter((item) => `${item.title} ${topicNames[item.topic]} ${item.slug}`.toLowerCase().includes(q) && (filter === 'all' || item.visible === (filter === 'visible')));
-  $('totalCount').textContent = `${articles.length} 篇`;
-  $('articleList').replaceChildren();
-  for (const item of visible) {
-    const row = document.createElement('button');
-    row.type = 'button';
-    row.className = `article-row${currentKey() === `${item.topic}/${item.slug}` ? ' active' : ''}`;
-    row.innerHTML = `<strong>${escapeHtml(item.title || item.slug)}</strong><small><span>${topicNames[item.topic]}</span><span>·</span><span>${item.visible ? '可见' : '隐藏'}</span>${item.draft ? '<span class="draft-dot">● 草稿</span>' : ''}${item.pending ? '<span class="pending-dot">● 待同步</span>' : ''}</small>`;
-    row.addEventListener('click', () => openArticle(item.topic, item.slug));
-    $('articleList').append(row);
+function documentHtml() {
+  const doc = $('pageFrame').contentDocument;
+  if (!doc?.documentElement) throw new Error('页面尚未加载完成');
+  const root = doc.documentElement.cloneNode(true);
+  root.querySelector('#editor-base')?.remove();
+  root.querySelector('#editor-style')?.remove();
+  root.querySelector('body').removeAttribute('contenteditable');
+  const doctype = page.html.match(/<!doctype[^>]*>/i)?.[0] || '<!doctype html>';
+  return doctype + '\n' + root.outerHTML;
+}
+
+function visualPatches(html) {
+  const original = new DOMParser().parseFromString(page.html, 'text/html');
+  const edited = new DOMParser().parseFromString(html, 'text/html');
+  if (!original.querySelector('article.body')) return null;
+  const selectors = ['h1', '.summary', '.kicker', '.state', '.tags', 'article.body', 'aside.related'];
+  const patches = {};
+  for (const selector of selectors) {
+    const before = original.querySelector(selector);
+    const after = edited.querySelector(selector);
+    if (!!before !== !!after) return null;
+    if (before && before.innerHTML !== after.innerHTML) {
+      patches[selector] = after.innerHTML;
+      before.innerHTML = after.innerHTML;
+    }
   }
+  return original.documentElement.outerHTML === edited.documentElement.outerHTML ? patches : null;
 }
 
-function updateStatus() {
-  $('statusBadge').textContent = current?.visible ? '本地可见' : '本地隐藏';
-  $('draftBadge').classList.toggle('hidden', !current?.draft);
-  $('pendingBadge').classList.toggle('hidden', !current?.pending);
-  $('visibilityToggle').checked = !!current?.visible;
-  $('visibilityHint').textContent = current?.visible ? '本地站点可访问；推送后线上同步。' : '本地站点不展示；文章内容仍可继续编辑。';
-  $('siteButton').disabled = !current?.visible;
+function renderPage(html) {
+  const directory = page.path.slice(0, page.path.lastIndexOf('/') + 1);
+  const base = '<base id="editor-base" href="' + location.origin + '/site/' + directory + '">';
+  const style = '<style id="editor-style">.reveal{opacity:1!important;transform:none!important}body[contenteditable="true"]{outline:none}body[contenteditable="true"] :focus{outline:2px solid #63a77b;outline-offset:2px}</style>';
+  $('pageFrame').srcdoc = html.replace(/<head\b[^>]*>/i, (tag) => tag + base + style);
 }
 
-function readForm() {
-  const special = !!current?.special;
-  const item = {
-    topic: $('topic').value,
-    slug: $('slug').value.trim(),
-    title: $('title').value.trim(),
-    summary: $('summary').value.trim(),
-    category: $('category').value.trim(),
-    state: $('state').value,
-    tags: $('tags').value.split(/[,，]/).map((value) => value.trim()).filter(Boolean),
-    special,
-    baseHash: current?.baseHash || null,
-    body: special ? '' : sourceMode ? $('sourceEditor').value : $('visualEditor').innerHTML,
-    related: special ? undefined : relatedDirty ? (sourceMode ? $('relatedSourceEditor').value : $('relatedEditor').innerHTML) : current?.related || '',
-    rawHtml: special ? $('sourceEditor').value : current?.rawHtml || '',
-  };
-  return item;
+function frameReady() {
+  if (!page || sourceMode) return;
+  const doc = $('pageFrame').contentDocument;
+  if (!doc?.body) return;
+  doc.body.contentEditable = 'true';
+  doc.addEventListener('input', markDirty);
+  doc.addEventListener('click', (event) => { if (event.target.closest('a')) event.preventDefault(); });
+  doc.addEventListener('selectionchange', () => {
+    const selection = doc.getSelection();
+    if (selection.rangeCount && doc.body.contains(selection.anchorNode)) lastRange = selection.getRangeAt(0).cloneRange();
+  });
 }
 
-function fillForm(item) {
-  current = item;
-  $('topic').value = item.topic;
-  $('slug').value = item.slug;
-  $('title').value = item.title || '';
-  $('summary').value = item.summary || '';
-  $('category').value = item.category || '';
-  $('state').value = item.state || '萌芽';
-  $('tags').value = (item.tags || []).join(', ');
-  $('visualEditor').innerHTML = item.body || '';
-  $('sourceEditor').value = item.special ? item.rawHtml || '' : item.body || '';
-  $('relatedEditor').innerHTML = item.related || '';
-  $('relatedSourceEditor').value = item.related || '';
-  $('relatedSection').classList.toggle('hidden', !!item.special);
-  $('topic').disabled = !!item.baseHash || !!item.draft;
-  $('slug').disabled = !!item.baseHash || !!item.draft;
-  for (const id of ['title', 'summary', 'category', 'state', 'tags']) $(id).disabled = !!item.special;
-  $('workspaceTitle').textContent = item.title || '新文章';
-  updateStatus();
-  $('emptyState').classList.add('hidden');
-  $('editorScreen').classList.remove('hidden');
-  $('visualTab').disabled = !!item.special;
-  sourceMode = !!item.special;
-  updateMode();
-  dirty = false;
-  relatedDirty = false;
-  renderList();
-  updatePreview();
-  message(item.special ? '此页使用独立版式，可在源码中编辑并预览。' : '修改仅在点击“保存草稿”后写入本机。');
-}
-
-async function openArticle(topic, slug) {
-  if (dirty && !confirm('当前修改尚未保存，确定切换文章吗？')) return;
-  try { fillForm(await api(`article?topic=${encodeURIComponent(topic)}&slug=${encodeURIComponent(slug)}`)); }
-  catch (error) { message(error.message, true); }
+async function openPage() {
+  if (dirty && !confirm('当前修改尚未更新到 HTML，确定打开另一个页面吗？')) return;
+  try {
+    const relative = sitePath($('urlInput').value);
+    page = await api('page?path=' + encodeURIComponent(relative));
+    $('urlInput').value = location.origin + '/site/' + page.path.replace(/index\.html$/, '');
+    $('filePath').textContent = page.path;
+    $('sourceEditor').value = page.html;
+    $('editorPanel').hidden = false;
+    $('emptyState').hidden = true;
+    sourceMode = false;
+    dirty = false;
+    lastRange = null;
+    $('dirtyBadge').hidden = true;
+    updateMode();
+    renderPage(page.html);
+    message('直接点击页面文字编辑；也可以切换到 HTML 源码。');
+  } catch (error) { message(error.message, true); }
 }
 
 function updateMode() {
-  $('visualEditor').classList.toggle('hidden', sourceMode);
-  $('sourceEditor').classList.toggle('hidden', !sourceMode);
-  $('toolbar').classList.toggle('hidden', sourceMode);
-  $('relatedEditor').classList.toggle('hidden', sourceMode);
-  $('relatedSourceEditor').classList.toggle('hidden', !sourceMode);
-  $('visualTab').classList.toggle('selected', !sourceMode);
-  $('sourceTab').classList.toggle('selected', sourceMode);
-  $('modeNote').textContent = current?.special ? '特殊页面使用完整 HTML 源码编辑，右侧查看实际页面。' : sourceMode ? '这里只修改正文 HTML，页面外壳会保持原样。' : '像编辑文档一样修改，右侧查看实际页面。';
+  $('pageFrame').hidden = sourceMode;
+  $('sourceEditor').hidden = !sourceMode;
+  $('visualButton').classList.toggle('selected', !sourceMode);
+  $('sourceButton').classList.toggle('selected', sourceMode);
+  $('formatTools').hidden = sourceMode;
 }
 
-function switchMode(toSource) {
-  if (!current || (current.special && !toSource) || sourceMode === toSource) return;
-  if (toSource) $('sourceEditor').value = $('visualEditor').innerHTML;
-  else $('visualEditor').innerHTML = $('sourceEditor').value;
-  if (toSource) $('relatedSourceEditor').value = $('relatedEditor').innerHTML;
-  else $('relatedEditor').innerHTML = $('relatedSourceEditor').value;
+function setMode(toSource) {
+  if (!page || sourceMode === toSource) return;
+  if (toSource) $('sourceEditor').value = dirty ? documentHtml() : page.html;
+  else renderPage($('sourceEditor').value);
   sourceMode = toSource;
   updateMode();
 }
 
-function previewHtml(item) {
-  let html;
-  if (item.special) html = item.rawHtml;
-  else {
-    const doc = new DOMParser().parseFromString(current?.rawHtml || '', 'text/html');
-    if (!doc.querySelector('article.body')) {
-      html = `<!doctype html><html><head><link rel="stylesheet" href="../../../../assets/article.css"></head><body data-topic="${item.topic}"><main class="page"><header class="hero"><span class="kicker"></span><h1></h1><p class="summary"></p><div class="meta"><span class="state"></span><div class="tags"></div></div></header><article class="body"></article><aside class="related"></aside></main></body></html>`;
-    } else html = current.rawHtml;
-    const page = new DOMParser().parseFromString(html, 'text/html');
-    page.querySelector('h1').textContent = item.title;
-    page.querySelector('.summary').textContent = item.summary;
-    page.querySelector('.kicker').textContent = `${topicNames[item.topic]} / ${item.category || '笔记'}`;
-    page.querySelector('.state').textContent = item.state;
-    page.querySelector('.tags').replaceChildren(...item.tags.map((tag) => { const span = document.createElement('span'); span.textContent = tag; return span; }));
-    page.querySelector('article.body').innerHTML = item.body;
-    const related = page.querySelector('aside.related');
-    if (related) related.innerHTML = item.related || '';
-    html = '<!doctype html>\n' + page.documentElement.outerHTML;
-  }
-  const base = `<base href="${location.origin}/site/topics/${item.topic}/notes/${item.slug}/">`;
-  const previewStyles = '<style>.reveal{opacity:1!important;transform:none!important}</style>';
-  return html.replace(/<head[^>]*>/i, (match) => match + base + previewStyles);
+function editingRange() {
+  const doc = $('pageFrame').contentDocument;
+  const selection = doc.getSelection();
+  if (selection.rangeCount && doc.body.contains(selection.anchorNode)) return selection.getRangeAt(0);
+  return lastRange;
 }
 
-function updatePreview() {
-  if (!current) return;
-  try { $('preview').srcdoc = previewHtml(readForm()); }
-  catch (error) { message(`预览失败：${error.message}`, true); }
+function insertElement(element) {
+  const doc = $('pageFrame').contentDocument;
+  const range = editingRange();
+  if (!range) { doc.body.append(element); markDirty(); return; }
+  range.deleteContents();
+  range.insertNode(element);
+  range.setStartAfter(element);
+  range.collapse(true);
+  const selection = doc.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+  lastRange = range.cloneRange();
+  markDirty();
 }
 
-function schedulePreview() {
-  clearTimeout(previewTimer);
-  previewTimer = setTimeout(updatePreview, 250);
+function wrapSelection(tag, attributes = {}) {
+  const doc = $('pageFrame').contentDocument;
+  const range = editingRange();
+  if (!range || range.collapsed) return message('请先在页面中选中文字。', true);
+  const element = doc.createElement(tag);
+  for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
+  element.append(range.extractContents());
+  insertElement(element);
 }
 
-async function saveDraft() {
-  const item = readForm();
+async function addImage(file) {
+  if (!file || !page) return;
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 8_000_000) return message('请选择不超过 8 MB 的 PNG、JPG 或 WebP 图片。', true);
+  const data = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); });
+  const image = $('pageFrame').contentDocument.createElement('img');
+  image.src = data;
+  image.alt = '';
+  image.style.maxWidth = '100%';
+  insertElement(image);
+  message('图片已插入页面；点击“更新 HTML”时写入文章目录。');
+}
+
+async function updateHtml() {
+  if (!page) return;
+  if (!dirty) return message('页面没有需要更新的修改。');
   try {
-    await api('draft', { method: 'POST', body: JSON.stringify(item) });
-    current = { ...current, ...item, draft: true };
+    const html = sourceMode ? $('sourceEditor').value : documentHtml();
+    const patches = sourceMode ? null : visualPatches(html);
+    const updated = await api('page/update', { path: page.path, html, hash: page.hash, patches });
+    page = updated;
+    $('sourceEditor').value = updated.html;
     dirty = false;
-    relatedDirty = false;
-    $('topic').disabled = true;
-    $('slug').disabled = true;
-    updateStatus();
-    await refreshList();
-    updatePreview();
-    message('草稿已保存在本机，站点内容尚未改变。');
-    return true;
-  } catch (error) { message(error.message, true); return false; }
-}
-
-async function apply() {
-  if (!(await saveDraft())) return;
-  if (!confirm('将草稿内容应用到本地文章？可见性不变，不会自动推送线上。')) return;
-  try {
-    await api('apply', { method: 'POST', body: JSON.stringify({ topic: current.topic, slug: current.slug }) });
-    await refreshList();
-    fillForm(await api(`article?topic=${current.topic}&slug=${current.slug}`));
-    message(current.visible ? '内容已应用到本地站点，列表已同步。' : '内容已应用到隐藏文章源，站点仍不可见。');
+    $('dirtyBadge').hidden = true;
+    if (!sourceMode) renderPage(updated.html);
+    message('HTML 已更新到本地文件。检查页面后即可推送上线。');
   } catch (error) { message(error.message, true); }
 }
 
-async function changeVisibility() {
-  const visible = $('visibilityToggle').checked;
-  if (!current) return;
-  try {
-    await api('visibility', { method: 'POST', body: JSON.stringify({ topic: current.topic, slug: current.slug, visible }) });
-    current.visible = visible;
-    current.published = visible;
-    await refreshList();
-    current.pending = !!articles.find((item) => item.topic === current.topic && item.slug === current.slug)?.pending;
-    updateStatus();
-    message(visible ? '本地站点已显示这篇文章，推送后线上同步。' : '本地站点已隐藏这篇文章，草稿不受影响。');
-  } catch (error) { $('visibilityToggle').checked = !!current.visible; message(error.message, true); }
-}
-
 async function showPublish() {
+  if (dirty) return message('请先点击“更新 HTML”，再推送线上。', true);
   try {
-    const change = await api('changes');
-    if (!change.files.length) return message('没有待推送的站点变更。');
-    $('changeList').textContent = `当前分支：${change.branch}\n\n${change.files.join('\n')}`;
+    const changes = await api('changes');
+    if (!changes.files.length) return message('没有需要推送的站点文件。');
+    $('changeList').textContent = '当前分支：' + changes.branch + '\n\n' + changes.files.join('\n');
     $('publishDialog').showModal();
   } catch (error) { message(error.message, true); }
 }
 
 async function publish() {
   $('confirmPublish').disabled = true;
-  $('confirmPublish').textContent = '正在推送…';
   try {
-    await api('publish', { method: 'POST', body: '{}' });
+    await api('publish', {});
     $('publishDialog').close();
-    if (current) { current.pending = false; updateStatus(); }
-    await refreshList();
-    message('内容已提交并推送到 main。');
-  } catch (error) { message(`推送未完成：${error.message}`, true); }
-  finally { $('confirmPublish').disabled = false; $('confirmPublish').textContent = '确认提交并推送'; }
-}
-
-function command(name, value) {
-  $('visualEditor').focus();
-  document.execCommand(name, false, value);
-  dirty = true;
-  schedulePreview();
-}
-
-async function uploadImage(file) {
-  if (!file || !current) return;
-  if (file.size > 8_000_000) return message('图片不能超过 8 MB', true);
-  const data = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); });
-  try {
-    const result = await api('image', { method: 'POST', body: JSON.stringify({ topic: $('topic').value, slug: $('slug').value, name: file.type, data }) });
-    command('insertHTML', `<img src="${result.src}" alt="" />`);
-    message('图片已加入正文。请保存草稿。');
+    message('站点文件已推送到线上。');
   } catch (error) { message(error.message, true); }
+  finally { $('confirmPublish').disabled = false; }
 }
 
-$('search').addEventListener('input', renderList);
-$('visibilityFilter').addEventListener('change', renderList);
-$('newButton').addEventListener('click', () => {
-  if (dirty && !confirm('当前修改尚未保存，确定新建文章吗？')) return;
-  fillForm({ topic: 'ai', slug: '', title: '', summary: '', category: '', state: '萌芽', tags: [], body: '<p></p>', related: '<div><h2>这篇文章回应的问题</h2><p></p></div><div><h2>关联阅读</h2><p></p></div>', rawHtml: '', published: false, draft: false, special: false });
-  $('topic').disabled = false;
-  $('slug').disabled = false;
-  $('title').focus();
-});
-$('visualTab').addEventListener('click', () => switchMode(false));
-$('sourceTab').addEventListener('click', () => switchMode(true));
-$('refreshPreview').addEventListener('click', updatePreview);
-$('saveButton').addEventListener('click', saveDraft);
-$('applyButton').addEventListener('click', apply);
-$('visibilityToggle').addEventListener('change', changeVisibility);
+$('openButton').addEventListener('click', openPage);
+$('urlInput').addEventListener('keydown', (event) => { if (event.key === 'Enter') openPage(); });
+$('pageFrame').addEventListener('load', frameReady);
+$('visualButton').addEventListener('click', () => setMode(false));
+$('sourceButton').addEventListener('click', () => setMode(true));
+$('sourceEditor').addEventListener('input', markDirty);
+$('updateButton').addEventListener('click', updateHtml);
 $('publishButton').addEventListener('click', showPublish);
 $('confirmPublish').addEventListener('click', publish);
 $('cancelPublish').addEventListener('click', () => $('publishDialog').close());
-$('closeDialog').addEventListener('click', () => $('publishDialog').close());
-$('siteButton').addEventListener('click', () => { if (current?.visible) window.open(`/site/topics/${current.topic}/notes/${current.slug}/`, '_blank'); });
-document.querySelectorAll('[data-command]').forEach((button) => button.addEventListener('click', () => command(button.dataset.command)));
-document.querySelectorAll('[data-block]').forEach((button) => button.addEventListener('click', () => command('formatBlock', `<${button.dataset.block}>`)));
-document.querySelectorAll('#toolbar button').forEach((button) => button.addEventListener('mousedown', (event) => event.preventDefault()));
-$('linkButton').addEventListener('click', () => { const url = prompt('链接地址'); if (url) command('createLink', url); });
-$('hrButton').addEventListener('click', () => command('insertHorizontalRule'));
+$('boldButton').addEventListener('click', () => wrapSelection('strong'));
+$('italicButton').addEventListener('click', () => wrapSelection('em'));
+$('linkButton').addEventListener('click', () => { const href = prompt('链接地址'); if (href) wrapSelection('a', { href }); });
 $('imageButton').addEventListener('click', () => $('imageInput').click());
-$('imageInput').addEventListener('change', (event) => { uploadImage(event.target.files[0]); event.target.value = ''; });
-['topic', 'slug', 'category', 'state', 'title', 'summary', 'tags', 'visualEditor', 'sourceEditor', 'relatedEditor', 'relatedSourceEditor'].forEach((id) => $(id).addEventListener('input', () => { dirty = true; $('workspaceTitle').textContent = $('title').value || '新文章'; schedulePreview(); }));
-['relatedEditor', 'relatedSourceEditor'].forEach((id) => $(id).addEventListener('input', () => { relatedDirty = true; }));
+$('imageInput').addEventListener('change', (event) => { addImage(event.target.files[0]); event.target.value = ''; });
 window.addEventListener('beforeunload', (event) => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
-refreshList().catch((error) => message(error.message, true));

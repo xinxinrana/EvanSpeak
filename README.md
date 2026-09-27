@@ -55,7 +55,7 @@ python -m http.server 8899 --bind 127.0.0.1
 node tools/editor/server.mjs
 ```
 
-浏览器访问 http://127.0.0.1:8898/ ，编辑文章、保存本机草稿，并在预览确认后应用到本地站点。使用说明见 [编辑工作台](tools/editor/README.md)。
+浏览器访问 http://127.0.0.1:8898/ ，粘贴本地网页 URL，直接编辑完整页面，更新 HTML 后检查并推送站点文件。使用说明见 [编辑工作台](tools/editor/README.md)。
 
 ## 克隆
 

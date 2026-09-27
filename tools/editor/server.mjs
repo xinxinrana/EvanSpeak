@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { readFile, writeFile, mkdir, readdir, stat, unlink, cp, rm } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir, stat, unlink, cp, rm, realpath } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +17,7 @@ const publishCommitFile = path.join(root, '.local-editor/publish-commit.txt');
 const run = promisify(execFile);
 const topics = { product: '产品', ai: 'AI', business: '商业', system: '自我系统', observe: '观察' };
 const port = Number(process.env.EVANSPEAK_EDITOR_PORT || 8898);
+const sitePaths = ['index.html', 'notes', 'paths', 'explore', 'topics', 'assets', 'styles.css', 'content/hidden'];
 
 const esc = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const decode = (value) => String(value ?? '').replace(/&(#x[\da-f]+|#\d+|amp|lt|gt|quot|apos|nbsp);/gi, (_, entity) => {
@@ -51,18 +52,84 @@ async function markPending(topic, slug) {
   await writeFile(pendingFile, JSON.stringify(pending, null, 2) + '\n');
 }
 
+async function resolvePage(input) {
+  if (typeof input !== 'string' || !input || input.includes('\\') || input.includes('\0')) throw new Error('页面地址无效');
+  const raw = input.replace(/^\/+/, '');
+  const relative = raw.endsWith('/') ? `${raw}index.html` : raw.endsWith('.html') ? raw : `${raw}/index.html`;
+  if (!/^(?:index\.html|(?:topics|notes|paths|explore)\/[a-zA-Z0-9/_-]+\.html)$/.test(relative)) throw new Error('只能编辑本站 HTML 页面');
+  const file = path.resolve(root, relative);
+  if (!file.startsWith(root + path.sep)) throw new Error('页面地址超出项目目录');
+  const actual = await realpath(file);
+  if (!actual.startsWith(root + path.sep)) throw new Error('页面地址超出项目目录');
+  return { file, relative };
+}
+
+async function pageInfo(input) {
+  const { file, relative } = await resolvePage(input);
+  const html = await read(file);
+  return { path: relative, html, hash: digest(html) };
+}
+
+async function updatePage({ path: input, html, hash, patches }) {
+  if (typeof html !== 'string' || !/<!doctype html/i.test(html) || !/<html\b/i.test(html) || !/<body\b/i.test(html)) throw new Error('请提交完整 HTML 页面');
+  const { file, relative } = await resolvePage(input);
+  const original = await read(file);
+  if (digest(original) !== hash) throw new Error('HTML 已被其他方式修改。请重新打开页面后再更新');
+  if (patches !== null && patches !== undefined) {
+    if (typeof patches !== 'object' || Array.isArray(patches) || !/<article\b[^>]*class="[^"]*\bbody\b/i.test(original)) throw new Error('页面补丁无效');
+    const patterns = {
+      h1: /(<h1\b[^>]*>)([\s\S]*?)(<\/h1>)/i,
+      '.summary': /(<p\b[^>]*class="[^"]*\bsummary\b[^"]*"[^>]*>)([\s\S]*?)(<\/p>)/i,
+      '.kicker': /(<span\b[^>]*class="[^"]*\bkicker\b[^"]*"[^>]*>)([\s\S]*?)(<\/span>)/i,
+      '.state': /(<span\b[^>]*class="[^"]*\bstate\b[^"]*"[^>]*>)([\s\S]*?)(<\/span>)/i,
+      '.tags': /(<div\b[^>]*class="[^"]*\btags\b[^"]*"[^>]*>)([\s\S]*?)(<\/div>)/i,
+      'article.body': /(<article\b[^>]*class="[^"]*\bbody\b[^"]*"[^>]*>)([\s\S]*?)(<\/article>)/i,
+      'aside.related': /(<aside\b[^>]*class="[^"]*\brelated\b[^"]*"[^>]*>)([\s\S]*?)(<\/aside>)/i,
+    };
+    let patched = original;
+    for (const [selector, content] of Object.entries(patches)) {
+      if (!Object.hasOwn(patterns, selector) || typeof content !== 'string') throw new Error('页面补丁无效');
+      patched = replaceInner(patched, patterns[selector], content, selector);
+    }
+    if (Object.hasOwn(patches, 'h1')) patched = replaceInner(patched, /(<title>)([\s\S]*?)(<\/title>)/i, esc(plain(patches.h1)) + ' | Evan Speak', '浏览器标题');
+    if (Object.hasOwn(patches, '.summary')) patched = patched.replace(/<meta\b[^>]*name="description"[^>]*>/i, '<meta name="description" content="' + esc(plain(patches['.summary'])) + '" />');
+    html = patched;
+  }
+  const images = [];
+  const updated = html.replace(/src=(['"])data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)\1/g, (_match, quote, type, base64) => {
+    const bytes = Buffer.from(base64, 'base64');
+    if (bytes.length > 8_000_000) throw new Error('单张图片不能超过 8 MB');
+    const ext = type === 'jpeg' ? 'jpg' : type;
+    const name = `${Date.now()}-${images.length}.${ext}`;
+    images.push({ name, bytes });
+    return `src=${quote}images/${name}${quote}`;
+  });
+  const additions = [];
+  const match = relative.match(/^topics\/(product|ai|business|system|observe)\/notes\/([a-z0-9-]+)\/index\.html$/);
+  if (match) {
+    const before = extract(original, match[1], match[2]);
+    const after = extract(updated, match[1], match[2]);
+    if (after.title && after.summary && (before.title !== after.title || before.summary !== after.summary || before.category !== after.category || before.state !== after.state)) {
+      additions.push(...await updatedIndexes(after, false));
+    }
+  }
+  if (images.length) {
+    const folder = path.join(path.dirname(file), 'images');
+    await mkdir(folder, { recursive: true });
+    for (const image of images) await writeFile(path.join(folder, image.name), image.bytes);
+  }
+  await Promise.all([[file, updated], ...additions].map(([target, value]) => writeFile(target, value)));
+  return { path: relative, html: updated, hash: digest(updated) };
+}
+
 async function changes() {
-  const pending = await pendingPaths();
-  if (!pending.length) return { files: [], branch: await git('branch', '--show-current') };
   const awaitingPush = await readIf(publishCommitFile);
   if (awaitingPush) return { files: [`已提交，等待推送：${awaitingPush.trim().slice(0, 10)}`], branch: await git('branch', '--show-current'), committed: true };
-  const output = await git('status', '--short', '--untracked-files=all', '--', ...pending);
+  const output = await git('status', '--short', '--untracked-files=all', '--', ...sitePaths);
   return { files: output ? output.split('\n') : [], branch: await git('branch', '--show-current') };
 }
 
 async function publishChanges() {
-  const pending = await pendingPaths();
-  if (!pending.length) throw new Error('没有待发布的站点变更');
   const branch = await git('branch', '--show-current');
   if (branch !== 'main') throw new Error('当前不在 main 分支，不能从工作台推送');
   const awaitingPush = await readIf(publishCommitFile);
@@ -75,12 +142,12 @@ async function publishChanges() {
   }
   if (Number(await git('rev-list', '--count', 'origin/main..HEAD')) > 0) throw new Error('main 已有其他未推送提交。请先检查 Git 历史');
   const staged = (await git('diff', '--cached', '--name-only', '-z')).split('\0').filter(Boolean);
-  const allowed = (name) => pending.some((entry) => name === entry || name.startsWith(`${entry}/`));
+  const allowed = (name) => sitePaths.some((entry) => name === entry || name.startsWith(`${entry}/`));
   if (staged.some((name) => !allowed(name))) throw new Error('暂存区还有其他文件。请先处理这些变更，再从工作台推送');
   const current = await changes();
   if (!current.files.length) throw new Error('待发布文件没有 Git 变更');
   const changedPaths = [];
-  for (const entry of pending) if (await git('status', '--short', '--', entry)) changedPaths.push(entry);
+  for (const entry of sitePaths) if (await git('status', '--short', '--', entry)) changedPaths.push(entry);
   await git('add', '-A', '--', ...changedPaths);
   await git('commit', '-m', 'Update Evan Speak content');
   await writeFile(publishCommitFile, `${await git('rev-parse', 'HEAD')}\n`);
@@ -357,7 +424,7 @@ async function requestBody(req) {
   let value = '';
   for await (const chunk of req) {
     value += chunk;
-    if (value.length > 12_000_000) throw new Error('请求内容过大');
+    if (value.length > 40_000_000) throw new Error('请求内容过大');
   }
   return JSON.parse(value);
 }
@@ -376,6 +443,8 @@ const server = http.createServer(async (req, res) => {
   try {
     if (req.method !== 'GET' && req.headers.origin && req.headers.origin !== `http://127.0.0.1:${port}`) return response(res, 403, { error: '仅允许从本地工作台操作' });
     const url = new URL(req.url, `http://127.0.0.1:${port}`);
+    if (url.pathname === '/api/page' && req.method === 'GET') return response(res, 200, await pageInfo(url.searchParams.get('path')));
+    if (url.pathname === '/api/page/update' && req.method === 'POST') return response(res, 200, await updatePage(await requestBody(req)));
     if (url.pathname === '/api/articles' && req.method === 'GET') return response(res, 200, await listArticles());
     if (url.pathname === '/api/changes' && req.method === 'GET') return response(res, 200, await changes());
     if (url.pathname === '/api/article' && req.method === 'GET') return response(res, 200, await loadArticle(url.searchParams.get('topic'), url.searchParams.get('slug')));

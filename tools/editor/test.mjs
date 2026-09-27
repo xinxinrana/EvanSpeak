@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { execFileSync } from 'node:child_process';
-import { cp, mkdtemp, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { cp, mkdtemp, mkdir, readFile, stat, writeFile, access } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import net from 'node:net';
@@ -121,6 +121,39 @@ try {
     '网页确认发布应把工作台变更推送到远端',
   );
 
+  const direct = await api('page?path=topics/product/notes/agentnote-devlog/');
+  assert.equal(direct.path, 'topics/product/notes/agentnote-devlog/index.html');
+  assert.equal(direct.html, await file(direct.path), '直接编辑读取历史 HTML 原文');
+  const directHtml = direct.html.replace('产品主线的设计取舍', '重新检查产品主线的设计取舍');
+  const directSaved = await api('page/update', { path: direct.path, html: directHtml, hash: direct.hash });
+  assert.equal(await file(direct.path), directHtml, '更新 HTML 不应重建历史页面结构');
+  assert.match(await file(direct.path), /重新检查产品主线的设计取舍/);
+  const changedSummary = directSaved.html.replace(/(<p class="summary">)[^<]+/, '$1直接编辑后的新摘要。');
+  await api('page/update', { path: direct.path, html: changedSummary, hash: directSaved.hash });
+  assert.match(await file('notes/index.html'), /直接编辑后的新摘要/);
+  assert.match(await file('topics/product/notes/index.html'), /直接编辑后的新摘要/);
+
+  const specialPage = await api('page?path=topics/ai/notes/feeling-to-phenomenon/');
+  const imageData = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==';
+  const specialUpdate = await api('page/update', { path: specialPage.path, hash: specialPage.hash, html: specialPage.html.replace('</body>', `<img src="${imageData}" alt="示意图"></body>`) });
+  assert.match(specialUpdate.html, /src="images\/\d+-0\.png"/);
+  await stat(path.join(fixture, 'topics/ai/notes/feeling-to-phenomenon/images', specialUpdate.html.match(/images\/(\d+-0\.png)/)[1]));
+  assert.equal((await api('page?path=index.html')).path, 'index.html');
+  const invalidPage = await fetch(`http://127.0.0.1:${port}/api/page?path=${encodeURIComponent('tools/editor/index.html')}`);
+  assert.equal(invalidPage.status, 400);
+
+  const aiHtml = path.join(fixture, 'topics/ai/notes/feeling-to-phenomenon/content.html');
+  await writeFile(aiHtml, (await readFile(aiHtml, 'utf8')) + '\n<!-- agent edited this HTML directly -->\n');
+  assert.ok((await api('changes')).files.some((line) => line.includes('content.html')), 'AI 直接修改的站点 HTML 也应出现在推送清单');
+  await api('publish', {});
+  assert.deepEqual((await api('changes')).files, []);
+  assert.equal(execFileSync('git', ['rev-parse', 'HEAD'], { cwd: fixture, encoding: 'utf8' }).trim(), execFileSync('git', ['rev-parse', 'main'], { cwd: remote, encoding: 'utf8' }).trim());
+
+  const stalePage = await api('page?path=topics/product/notes/agentnote-devlog/');
+  await writeFile(path.join(fixture, stalePage.path), stalePage.html + '\n<!-- another edit -->\n');
+  const directConflict = await fetch(`http://127.0.0.1:${port}/api/page/update`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ path: stalePage.path, html: stalePage.html, hash: stalePage.hash }) });
+  assert.equal(directConflict.status, 400, '外部 HTML 修改不能被工作台覆盖');
+
   const conflict = await api('article?topic=observe&slug=a-warm-croissant');
   await api('draft', { ...conflict, summary: '一份尚未应用的修改。' });
   const conflictFile = path.join(fixture, 'topics/observe/notes/a-warm-croissant/index.html');
@@ -167,7 +200,91 @@ try {
 
   const foreign = await fetch(`http://127.0.0.1:${port}/api/visibility`, { method: 'POST', headers: { origin: 'https://example.com', 'content-type': 'application/json' }, body: JSON.stringify({ topic: 'observe', slug: 'a-warm-croissant', visible: false }) });
   assert.equal(foreign.status, 403);
-  console.log('编辑工作台测试通过：草稿、内容应用、可见性、新建、图片、特殊页面、列表同步、本地 Git 推送、外部修改冲突、本机来源限制。');
+  const chromePath = process.env.CHROME_BINARY || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+  if (typeof WebSocket === 'function' && await access(chromePath).then(() => true, () => false)) {
+    const debugPort = await new Promise((resolve) => {
+      const probe = net.createServer();
+      probe.listen(0, '127.0.0.1', () => { const chosen = probe.address().port; probe.close(() => resolve(chosen)); });
+    });
+    const chrome = spawn(chromePath, ['--headless=new', '--no-sandbox', '--disable-gpu', '--no-first-run', '--remote-debugging-port=' + debugPort, '--user-data-dir=' + path.join(fixture, 'chrome-profile'), 'about:blank'], { stdio: 'ignore' });
+    let socket;
+    try {
+      let target;
+      for (let attempt = 0; attempt < 60; attempt++) {
+        try {
+          const tabs = await (await fetch('http://127.0.0.1:' + debugPort + '/json/list')).json();
+          target = tabs.find((tab) => tab.type === 'page');
+          if (target) break;
+        } catch { /* Chrome is starting. */ }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      assert.ok(target, 'Chrome should expose a page target');
+      socket = new WebSocket(target.webSocketDebuggerUrl);
+      await new Promise((resolve, reject) => { socket.addEventListener('open', resolve, { once: true }); socket.addEventListener('error', reject, { once: true }); });
+      let nextId = 0;
+      const pending = new Map();
+      socket.addEventListener('message', (event) => {
+        const value = JSON.parse(event.data);
+        if (!value.id) return;
+        const request = pending.get(value.id);
+        pending.delete(value.id);
+        if (value.error) request.reject(new Error(value.error.message));
+        else request.resolve(value.result);
+      });
+      const command = (method, params = {}) => new Promise((resolve, reject) => {
+        const id = ++nextId;
+        pending.set(id, { resolve, reject });
+        socket.send(JSON.stringify({ id, method, params }));
+      });
+      const evaluate = async (expression) => {
+        const result = await command('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
+        if (result.exceptionDetails) throw new Error(result.exceptionDetails.text);
+        return result.result.value;
+      };
+      await command('Page.navigate', { url: 'http://127.0.0.1:' + port + '/' });
+      for (let attempt = 0; attempt < 60; attempt++) {
+        if (await evaluate('document.readyState === "complete" && !!document.querySelector("#openButton")')) break;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      await evaluate('document.querySelector("#urlInput").value = "http://127.0.0.1:' + port + '/site/topics/observe/notes/a-warm-croissant/"; document.querySelector("#openButton").click()');
+      let ready = false;
+      for (let attempt = 0; attempt < 60; attempt++) {
+        ready = await evaluate('!!document.querySelector("#pageFrame").contentDocument?.querySelector("article.body p") && document.querySelector("#pageFrame").contentDocument.body.isContentEditable');
+        if (ready) break;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      assert.ok(ready, '完整历史页面应在 iframe 中可编辑');
+      const beforeBrowser = await file('topics/observe/notes/a-warm-croissant/index.html');
+      await evaluate('document.querySelector("#pageFrame").contentDocument.querySelector("article.body p").textContent = "浏览器页面编辑测试"; document.querySelector("#pageFrame").contentDocument.body.dispatchEvent(new Event("input", { bubbles: true })); document.querySelector("#updateButton").click()');
+      let saved = false;
+      for (let attempt = 0; attempt < 60; attempt++) {
+        saved = (await file('topics/observe/notes/a-warm-croissant/index.html')).includes('浏览器页面编辑测试');
+        if (saved) break;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      assert.ok(saved, '浏览器中的直接编辑应写回原 HTML 文件');
+      const afterBrowser = await file('topics/observe/notes/a-warm-croissant/index.html');
+      assert.doesNotMatch(afterBrowser, /id="editor-base"|id="editor-style"|contenteditable="true"/);
+      assert.equal(afterBrowser.split('<article class="body">')[0], beforeBrowser.split('<article class="body">')[0], '可视编辑应保留原 HTML 的页头');
+      assert.equal(afterBrowser.split('</article>')[1], beforeBrowser.split('</article>')[1], '可视编辑应保留原 HTML 的脚本和页尾');
+      for (let attempt = 0; attempt < 60; attempt++) {
+        if (await evaluate('document.querySelector("#pageFrame").contentDocument.body.isContentEditable && document.querySelector("#dirtyBadge").hidden')) break;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      await evaluate('(() => { const doc = document.querySelector("#pageFrame").contentDocument; const img = doc.createElement("img"); img.src = "' + imageData + '"; doc.querySelector("article.body").append(img); doc.body.dispatchEvent(new Event("input", { bubbles: true })); document.querySelector("#updateButton").click(); })()');
+      let imageSaved = false;
+      for (let attempt = 0; attempt < 60; attempt++) {
+        imageSaved = /src="images\/\d+-0\.png"/.test(await file('topics/observe/notes/a-warm-croissant/index.html'));
+        if (imageSaved) break;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      assert.ok(imageSaved, '页面内插入的图片应写入原文章目录');
+    } finally {
+      socket?.close();
+      chrome.kill();
+    }
+  }
+  console.log('编辑工作台测试通过：直接读取和更新历史 HTML、图片、特殊页面、Git 推送、外部修改冲突及兼容旧草稿。');
 } finally {
   server.kill();
 }
