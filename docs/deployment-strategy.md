@@ -1,110 +1,31 @@
-# 部署与构建策略
+# 部署说明
 
-本文档记录 Evan Speak 的部署目标、构建方式选择和后续演进判断。
+Evan Speak 是纯静态网站。仓库根目录的 HTML、CSS、JavaScript 和图片就是发布文件，没有安装依赖或执行前端构建的步骤。本地网页工作台只是编辑工具；它的 Node 服务不会在 GitHub Pages 上运行。
 
-## 当前部署
+## GitHub Pages
 
-站点同时发布到两个静态托管，两边都在监听同一个仓库的 `main` 分支，push 后各自重建。
-
-### GitHub Pages（主站）
-
-| 项 | 值 |
+| 项目 | 当前配置 |
 | --- | --- |
 | 仓库 | `xinxinrana/EvanSpeak` |
-| 发布源 | `main` 分支根目录（legacy 分支构建，不使用 Actions） |
-| 地址 | https://xinxinrana.github.io/EvanSpeak/ |
-| 仓库 homepage 字段 | 指向上述地址 |
+| 发布源 | `main` 分支根目录 |
+| 构建类型 | GitHub Pages legacy 分支发布 |
+| 网站 | https://xinxinrana.github.io/EvanSpeak/ |
 
-仓库根目录的 `.nojekyll` 用来跳过 Jekyll 构建。站点是纯静态 HTML，不需要 Jekyll 处理；关掉它能避免中文路径和资源被二次处理。
+根目录的 `.nojekyll` 让 GitHub Pages 直接提供静态文件，不经过 Jekyll。仓库中的页面使用相对路径，因此本地网站位于根路径、线上网站位于 `/EvanSpeak/` 时都能正常导航。
 
-### Cloudflare Pages
+## 发布流程
 
-Build configuration 建议：
+1. 在本地查看页面。可运行 `node tools/editor/server.mjs`，访问 http://127.0.0.1:8898/site/；工作台位于 http://127.0.0.1:8898/ 。
+2. 修改 HTML/CSS/资源并检查本地效果。
+3. 通过工作台“推送到线上”检查站点文件清单，再提交和推送；也可使用 Git 手动提交、推送到 `origin/main`。
+4. 访问线上 URL 验证已发布页面、导航和资源。GitHub Pages 构建及缓存可能使页面稍后更新。
 
-```text
-Framework preset: None
-Build command: exit 0
-Build output directory: .
-```
+工作台只会把站点范围内的文件纳入推送清单，例如 `index.html`、`topics/`、`notes/`、`paths/`、`explore/`、`assets/`、`styles.css`。`docs/`、`tools/` 和 `AGENTS.md` 等仓库维护文件需要用 Git 正常提交。工作台拒绝混入不属于站点范围的已暂存文件；提交前应先检查工作区。
 
-关键是根目录要有顶层 `index.html`。
+更新了 `tools/editor/server.mjs` 后，要重启正在运行的工作台服务。HTML/CSS/前端脚本文件由服务按请求读取，后端 Node 代码不会在旧进程中自动重新加载。
 
-## 当前阶段
+## 其他托管
 
-项目是纯静态 HTML 网站，无需前端框架或构建系统：
+仓库没有 Cloudflare Pages 的项目配置或可核实的部署地址，因此不把它列为当前发布目标。若以后需要额外托管，可将仓库根目录作为静态输出目录，不需要构建；具体平台设置以实际项目配置为准。
 
-- 首页：`index.html`
-- 首页样式：`styles.css`
-- 文章页样式：`assets/article.css`
-- 列表页样式：`assets/list.css`
-- 资源：`assets/`
-- 内容页：`topics/<主题>/notes/<slug>/index.html`
-- 列表页：`notes/index.html`、`topics/<主题>/notes/index.html`
-
-## 为什么现在不急着上框架
-
-当前内容还处在早期阶段，直接引入框架会增加维护成本：
-
-- 需要包管理器、依赖、构建命令
-- 部署配置更复杂
-- 内容结构还没稳定，过早抽象容易返工
-- 当前静态 HTML 已经足够支撑首页、列表页和文章页
-
-现阶段更重要的是继续沉淀内容和验证信息结构。
-
-## 什么时候需要迁移
-
-当出现这些信号时，再考虑迁移到构建工具：
-
-- 文章超过 30-50 篇，手写列表页开始明显拖慢更新
-- 需要 Markdown / MDX 直接写作，不再想手工转 HTML
-- 需要自动生成文章列表、标签页、分类页
-- 需要标签、分类、专题页、阅读路径
-- 多个页面开始重复维护导航、页头、页脚和元信息
-
-## 推荐的未来方案：Astro
-
-如果后续内容增长，优先考虑迁移到 Astro。
-
-原因：
-
-- 适合内容型网站、博客和个人数字花园
-- 默认生成静态 HTML，可以直接部署到 GitHub Pages 或 Cloudflare Pages
-- 支持 Markdown / MDX，适合长期写文章
-- 可以保留当前高度自定义的首页设计
-- 可以继续嵌入或迁移现有独立 HTML 内容
-- 相比 React/Vue/Svelte SPA，更适合这个站点的内容属性
-
-## 不优先选择的方案
-
-### Next.js
-
-除非后续需要复杂应用、登录、后台、SSR 或动态数据，否则对当前项目偏重。
-
-### Vue / Svelte / React SPA
-
-更适合应用型产品，不是最适合文章型数字花园。
-
-### VitePress / Docusaurus
-
-适合文档站，但 Evan Speak 更像个人数字花园，不是纯技术文档站。
-
-### Hugo
-
-速度快，但对当前这种定制首页、嵌入内容和后续交互设计来说，Astro 更灵活。
-
-## 当前结论
-
-短期：
-
-```text
-继续使用静态 HTML，同时发布到 GitHub Pages 与 Cloudflare Pages
-```
-
-中期：
-
-```text
-当文章规模或列表维护重复度超过手写静态 HTML 的舒适区时，迁移到 Astro
-```
-
-判断标准是内容规模和维护重复度，不是"看起来更专业"。
+继续维护静态 HTML 即可。只有当手写列表、重复页面结构或链接维护明显成为负担时，再评估是否引入生成工具；当前不需要为此迁移框架。

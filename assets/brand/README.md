@@ -20,8 +20,10 @@
 
 ## 重新生成
 
+需要 Python 3 和 Pillow。请先在所用的 Python 环境中安装 Pillow，再从仓库根目录运行：
+
 ```bash
-python scripts/build_brand_assets.py
+python3 scripts/build_brand_assets.py
 ```
 
 脚本会去掉近白背景、把 logo 裁切到方形透明画布上，并写出全部 PNG 与 ICO 输出。
