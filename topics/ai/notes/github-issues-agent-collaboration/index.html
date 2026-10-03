@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent 时代，最好的协作平台可能早就存在：GitHub Issues | Evan Speak</title>
+    <meta name="description" content="AI 带来的不只是更强的执行者，也让协作密度急剧上升。GitHub 在 AI 出现之前，已经用 Issues、链接、时间线、历史和 API 把最难的协作问题做了一遍。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="../../../../assets/brand/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="../../../../assets/brand/apple-touch-icon.png" />
+    <link rel="stylesheet" href="../../../../assets/article.css" />
+  </head>
+  <body data-topic="ai">
+    <main class="page">
+      <nav class="crumbs reveal" aria-label="面包屑导航">
+        <a href="../../../../">Evan Speak</a>
+        <span>/</span>
+        <a href="../../">AI</a>
+        <span>/</span>
+        <a href="../">相关笔记</a>
+      </nav>
+
+      <header class="hero reveal">
+        <span class="kicker">AI / 协作基础设施</span>
+        <h1>Agent 时代，最好的协作平台可能早就存在：GitHub Issues</h1>
+        <p class="summary">AI 带来的不只是更强的执行者，也让协作密度急剧上升。GitHub 在 AI 出现之前，已经用 Issues、链接、时间线、历史和 API 把最难的协作问题做了一遍。</p>
+        <div class="meta">
+          <span class="state">成型</span>
+          <div class="tags"><span>GitHub Issues</span><span>Agent</span><span>协作</span><span>上下文</span></div>
+        </div>
+      </header>
+
+      <article class="body">
+        <p>我越来越倾向于一个判断：Agent 时代最值得优先使用的协作基础设施，可能早就存在了。</p>
+        <blockquote><p><strong>它就是 GitHub Issues。</strong></p></blockquote>
+        <p>关键不在于 GitHub 是“程序员工具”。更重要的是，在 AI 出现之前，它已经花了很多年解决一类更底层的问题：很多参与者如何围绕同一件事，长期、异步、可追溯地协作。</p>
+        <p>AI 到来以后，这个问题没有消失。协作者从“人和人”扩展成人、Agent 和自动化系统，它反而变得更重要。</p>
+
+        <h2>我原本想自己造一个，最后又回到了 GitHub</h2>
+        <p>这个判断最初来自一次很实际的探索。我想搭一套个人使用的 Issues 式工作流：一件事可以很轻地创建，过程中不断补充文字、图片和进展，多端都能访问，人和 Agent 都能继续处理，最后再明确关闭。</p>
+        <p>我看过飞书多维表、Tower、Vikunja、Gitee，也真的尝试过自己做“静态前端 + 对象存储”。最后，我又回到了 GitHub Issues。</p>
+        <p>真正让我改变认识的，不是“GitHub 功能更多”，而是我开始意识到：<strong>一个看起来很简单的 Issue 页面，背后已经是一整套成熟的协作基础设施。</strong></p>
+        <p>完整的探索过程保留在 <a href="https://github.com/xinxinrana/Evan/issues/1">xinxinrana/Evan#1</a>。那次尝试更像一个实验：先把自己需要的能力拆出来，再去验证到底值不值得重新造一遍。</p>
+
+        <h2>AI 让协作重新变成核心问题</h2>
+        <p>过去，一个项目的主要参与者是人。现在，一个项目里可能同时存在我、ChatGPT、Codex、Claude、后台自动化，以及几个职责不同的 Agent。</p>
+        <p>参与者越多，真正稀缺的就越不是“谁能生成得更快”，而是：</p>
+        <blockquote><p>我们正在处理哪一件事？为什么要做？现在做到哪里？之前发生过什么？下一步谁继续？</p></blockquote>
+        <p>Agent 越能执行，这些问题越重要。因为它一旦拿错上下文，也能非常高效地把事情做偏。</p>
+        <p>因此，AI 协作需要一个所有参与者都能共同读写的<strong>外部协作状态</strong>。它不能只存在于某一次聊天，也不能只存在于某个人的脑子里。</p>
+
+        <h2>Issue 的本质，是把“一件事”变成稳定对象</h2>
+        <p>很多人把 Issue 理解成程序员的任务单。但从结构上看，它更接近一个完整的 <em>Work Object</em>：</p>
+        <blockquote><p><strong>一件事 = 一个可持续维护、可引用、可推进的对象。</strong></p></blockquote>
+        <p>标题说明它是什么，正文保存当前背景，评论形成时间线，图片和附件补充证据，Open / Closed 表示生命周期，Label 和 Assignee 表示组织关系，PR 与 Commit 连接真实产出，URL 让它可以被稳定引用，API 又让人和 Agent 都能操作它。</p>
+        <p>这里真正关键的一步，是把“事情”从聊天窗口和人的脑子里抽出来，变成一个<strong>公共、持久、可寻址的上下文</strong>。</p>
+
+        <h3>链接开始变成上下文协议</h3>
+        <p>人与 Agent 协作时，一个高频成本是反复解释：“你还记得我之前说的那个需求吗？”这类沟通非常脆弱。</p>
+        <p>如果一件事已经被对象化成 Issue，我只需要把一个 URL 交给另一个 Agent。标题、背景、历史讨论、图片、相关链接和当前状态都跟着它走。</p>
+        <blockquote><p><strong>链接不只是分享地址，它可以成为人和 Agent 之间的上下文协议。</strong></p></blockquote>
+
+        <h3>时间线天然适合异步接力</h3>
+        <p>未来越来越常见的流程可能是：人提出目标，Agent 调研，人补充判断，Agent 执行，另一个 Agent 再接手。</p>
+        <p>如果这些过程散落在不同聊天窗口里，上下文很快会碎掉。Issue 的评论时间线让每一次补充都追加在同一个对象下面，后来加入的人或 Agent 可以从历史重新建立上下文。</p>
+
+        <h3>可追溯性会从工程能力变成 Agent 基础设施</h3>
+        <p>Agent 的执行速度越快，审计、回退和来源就越重要。谁改了什么，为什么这么改，哪一次修改产生了结果，哪一步可以撤销，这些都需要有迹可循。</p>
+        <p>GitHub 围绕软件开发长期建立的 Diff、Commit、Review、权限和历史记录，在纯人类时代是工程协作能力；到了 Agent 时代，它们直接变成了 AI 可控性的基础设施。</p>
+
+        <h2>GitHub 在 AI 之前，已经把最难的协作问题做了一遍</h2>
+        <p>软件开发本身就是一种极端的知识协作。一个项目可能持续很多年，参与者不断变化，大量工作异步发生，一个小改动又可能影响系统的其他部分。所有修改都需要知道来源、原因和结果，工作还要跨团队、跨时区、跨设备接力。</p>
+        <p>所以 GitHub 十几年一直在解决的，本质上就是：</p>
+        <blockquote><p><strong>如何让很多参与者围绕复杂知识和长期任务协作，同时尽量不丢上下文。</strong></p></blockquote>
+        <p>Issue、PR、Commit、Review、Project、Actions、API 并非一堆偶然拼在一起的功能，它们共同组成了一套已经被大规模使用验证过的协作协议。</p>
+        <p>现在 AI 加入以后，我们遇到的问题其实高度相似：上下文会丢、任务要交接、修改要审核、结果要追踪、不同参与者需要共享同一份事实。</p>
+        <p>这会引出一个很有意思的判断：</p>
+        <blockquote><p><strong>我们未必需要从零发明一个“AI 协作平台”。我们只是多了一类新的协作者。</strong></p></blockquote>
+
+        <h2>AI 改变了参与者，协作的基本规律没有消失</h2>
+        <p>过去的关系更多是“人 ↔ 人”，现在开始变成“人 ↔ Agent ↔ Agent ↔ 人”。但无论参与者是谁，一套可靠的协作仍然需要共同对象、共享上下文、明确状态、可追溯历史、稳定引用，以及新的参与者可以加入的开放接口。</p>
+        <p>GitHub Issues 恰好已经把这些东西组合成了一个成熟产品。</p>
+        <p>所以我现在更愿意把 Issue 理解成：</p>
+        <blockquote><p><strong>一个由人和 Agent 共同维护的、有生命周期的上下文容器。</strong></p></blockquote>
+        <p>聊天可以是入口，Agent 可以是执行者，文档和代码可以是最终产物；Issue 则充当中间最稳定的<strong>协作控制面</strong>：事情从这里产生，在这里被讨论、引用、推进和交接，最后也在这里关闭。</p>
+
+        <h2>为什么我不急着再造一个新的 AI 协作平台</h2>
+        <p>AI 时代很容易产生一种冲动：以前的软件没有为 Agent 设计，所以应该重新做一套。</p>
+        <p>但自己做一个 Issue 页面并不难，难的是它背后的多端同步、身份权限、附件、历史、并发修改、搜索、链接关系、API、自动化、长期可靠性和生态兼容。</p>
+        <p>这些能力补齐以后，很容易又重新造出一个 GitHub。</p>
+        <blockquote><p><strong>更值得优先尝试的策略，是先寻找已经被人类大规模协作验证过的基础设施，再让 Agent 接进去。</strong></p></blockquote>
+
+        <h2>边界：Issue 适合“还在发生中的事情”</h2>
+        <p>GitHub Issues 并不适合所有内容。即时交流仍然适合聊天工具，稳定知识适合文档和知识库，高结构数据适合数据库与表格。</p>
+        <p>Issue 最适合的是另一类对象：有明确目标，需要持续推进，会经历多轮讨论，可能由不同的人和 Agent 接力，并且最终需要留下历史。</p>
+        <p>AI 时代真正增加的，不只是生产力，还有<strong>协作密度</strong>。当每个人身边都开始出现多个 Agent，我们会越来越需要：</p>
+        <blockquote><p><strong>可寻址的上下文 + 明确的状态 + 可追溯的历史 + 人和机器都能操作的接口。</strong></p></blockquote>
+        <p>GitHub 在 AI 出现以前，就已经围绕这些问题发展了很多年。</p>
+        <p>所以我现在的结论是：<strong>最好的 AI 协作工具，可能早就存在。以前它主要服务人类协作者，现在 Agent 也开始进入这套系统。</strong></p>
+      </article>
+
+      <aside class="related reveal" aria-label="关联信息">
+        <div>
+          <h2>这篇文章从哪里来</h2>
+          <p>它来自一次真实的个人工作流探索，以及随后把 GitHub Issue 直接交给 Agent 读取、修改和继续推进的使用过程。</p>
+        </div>
+        <div>
+          <h2>关联阅读</h2>
+          <p><a href="../managing-a-brilliant-rookie/">带一个非常聪明、执行力很强，但工作经验非常低的实习生</a> —— 从另一侧理解 Agent 为什么需要清晰的协作结构与边界。</p>
+        </div>
+      </aside>
+
+      <p class="foot reveal"><a href="../">&larr; 返回AI相关笔记</a></p>
+    </main>
+
+    <script>
+      const items = document.querySelectorAll(".reveal");
+
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
+        );
+
+        items.forEach((item) => observer.observe(item));
+      } else {
+        items.forEach((item) => item.classList.add("is-visible"));
+      }
+    </script>
+  </body>
+</html>
